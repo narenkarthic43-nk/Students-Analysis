@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
 
   <!-- Ambient Glowing Background Orbs -->
@@ -29,7 +31,8 @@
             Academic Evaluation System 2026
           </div>
           <h1 class="portal-title">Student Portal Login</h1>
-          <p class="portal-subtitle">Enter your official details to verify your semester results & academic standing.</p>
+          <p class="portal-subtitle">Enter your official details to verify your semester results & academic standing.
+          </p>
         </div>
 
         <form id="portalForm" class="portal-form" onsubmit="return false;">
@@ -38,20 +41,45 @@
               <i class="fa-solid fa-user-graduate"></i> Student Full Name
             </label>
             <div class="input-field-wrapper">
-              <input type="text" id="studentName" class="input-field" placeholder="e.g. Alex Johnson" required autocomplete="off">
+              <input type="text" id="studentName" class="input-field" placeholder="Enter your full name (e.g. SURESH S)"
+                required autocomplete="off" spellcheck="false">
               <i class="fa-solid fa-id-card input-icon"></i>
             </div>
           </div>
 
-          <div class="input-group">
-            <label for="rollNo" class="input-label">
-              <i class="fa-solid fa-hashtag"></i> Student Roll Number / ID
-            </label>
-            <div class="input-field-wrapper">
-              <input type="text" id="rollNo" class="input-field" placeholder="e.g. 2026-CS-409" required autocomplete="off">
-              <i class="fa-solid fa-fingerprint input-icon"></i>
+          <!-- DYNAMICALLY REVEALED AFTER ENTERING STUDENT NAME -->
+          <div id="studentDetailsSection" class="student-details-section">
+            <div class="student-details-inner">
+              <div class="verified-badge">
+                <i class="fa-solid fa-circle-check"></i>
+                <span id="verifiedBadgeText">Student Record Identified</span>
+              </div>
+
+              <div class="input-group">
+                <label for="rollNo" class="input-label">
+                  <i class="fa-solid fa-hashtag"></i> Student Roll Number / ID
+                </label>
+                <div class="input-field-wrapper">
+                  <input type="text" id="rollNo" class="input-field readonly-field"
+                    placeholder="Auto-filled from database" readonly tabindex="-1" required autocomplete="off">
+                  <i class="fa-solid fa-lock input-icon"></i>
+                </div>
+              </div>
+
+              <div class="input-group">
+                <label for="collegeName" class="input-label">
+                  <i class="fa-solid fa-building-columns"></i> College Name
+                </label>
+                <div class="input-field-wrapper">
+                  <input type="text" id="collegeName" class="input-field readonly-field"
+                    value="MUTHAYAMMAL ENGINEERING COLLEGE" readonly tabindex="-1">
+                  <i class="fa-solid fa-lock input-icon"></i>
+                </div>
+              </div>
             </div>
           </div>
+
+          <div id="loginError" class="login-error-msg" style="display: none;"></div>
 
           <button type="submit" id="checkResultBtn" class="submit-btn">
             <span>View Confidential Result</span>
@@ -82,20 +110,32 @@
       <!-- SCREEN 2: PRANK DASHBOARD -->
       <section id="prankScreen" class="view-screen">
         <div class="prank-header">
-          <div class="prank-tag">🎉 YOU GOT PRANKED! 🐒</div>
-          <h1 class="prank-title">Academic Result: <span class="student-highlight">CERTIFIED MONKEY!</span></h1>
-          <p class="portal-subtitle">Congratulations! Our AI brainwave scanner analyzed your profile with 100% precision!</p>
+          <div class="prank-tag"> 🐒F****K ME🐒</div>
+          <h1 class="prank-title">I HAVE BANANA🍌🍌🍌 <span class="student-highlight">COME WITH ME!</span></h1>
+          <p class="portal-subtitle">Congratulations! TO SUPPORT ME
+          </p>
+        </div>
+
+        <!-- Gorilla Meme Image Display with Pink Bow & Student Name Banner -->
+        <div class="gorilla-image-container">
+          <img id="gorillaImg" src="https://i.pinimg.com/736x/1e/eb/6b/1eeb6b38ac1e0950bd1e03b0a8d3956e.jpg"
+            alt="Prank Gorilla with Pink Bow" class="gorilla-meme-img"
+            onerror="this.onerror=null; this.src='gorilla.jpg';">
+          <div class="student-banner">
+            <span id="bannerStudentName">STUDENT NAME</span>
+          </div>
         </div>
 
         <!-- Interactive Animated SVG Monkey Stage -->
         <div class="monkey-stage">
           <div id="speechBubble" class="speech-bubble">OOH OOH AAH AAH! 🍌 Give me bananas!</div>
-          
+
           <div id="monkeyInteractive" class="monkey-container" title="Click me to make me dance!">
             <svg class="monkey-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
               <!-- Tail -->
-              <path class="monkey-tail" d="M150 140 Q 185 120 170 170 Q 155 190 175 195" fill="none" stroke="#78350f" stroke-width="10" stroke-linecap="round"/>
-              
+              <path class="monkey-tail" d="M150 140 Q 185 120 170 170 Q 155 190 175 195" fill="none" stroke="#78350f"
+                stroke-width="10" stroke-linecap="round" />
+
               <!-- Body -->
               <ellipse cx="100" cy="145" rx="42" ry="48" fill="#92400e" />
               <!-- Tummy -->
@@ -103,41 +143,43 @@
 
               <!-- Left Arm & Hand -->
               <g id="monkeyArmLeftGroup">
-                <path class="monkey-arm-left" d="M60 125 Q 30 145 25 110" fill="none" stroke="#92400e" stroke-width="12" stroke-linecap="round"/>
+                <path class="monkey-arm-left" d="M60 125 Q 30 145 25 110" fill="none" stroke="#92400e" stroke-width="12"
+                  stroke-linecap="round" />
                 <!-- Hand Left -->
-                <circle cx="23" cy="108" r="8" fill="#fde68a"/>
+                <circle cx="23" cy="108" r="8" fill="#fde68a" />
               </g>
-              
+
               <!-- Right Arm & Hand Poses -->
               <g id="monkeyArmRightGroup">
-                <path id="armRightPath" class="monkey-arm-right" d="M140 125 Q 170 110 165 85" fill="none" stroke="#92400e" stroke-width="12" stroke-linecap="round"/>
-                
+                <path id="armRightPath" class="monkey-arm-right" d="M140 125 Q 170 110 165 85" fill="none"
+                  stroke="#92400e" stroke-width="12" stroke-linecap="round" />
+
                 <!-- Hand Poses Container -->
                 <g id="handRightPose" transform="translate(165, 85)">
                   <!-- Normal Fist / Wave (Default) -->
                   <g id="poseDefault">
-                    <circle cx="0" cy="0" r="8" fill="#fde68a"/>
+                    <circle cx="0" cy="0" r="8" fill="#fde68a" />
                   </g>
-                  
+
                   <!-- Thumbs Down Pose -->
                   <g id="poseThumbsDown" style="display: none;">
-                    <circle cx="0" cy="0" r="8" fill="#fde68a"/>
+                    <circle cx="0" cy="0" r="8" fill="#fde68a" />
                     <!-- Thumb pointing down -->
-                    <path d="M 0 4 L 0 16" stroke="#fde68a" stroke-width="5" stroke-linecap="round"/>
+                    <path d="M 0 4 L 0 16" stroke="#fde68a" stroke-width="5" stroke-linecap="round" />
                   </g>
-                  
+
                   <!-- Rock On / Party Pose 🤘 -->
                   <g id="poseRockOn" style="display: none;">
-                    <circle cx="0" cy="0" r="8" fill="#fde68a"/>
-                    <path d="M -4 -4 L -6 -14" stroke="#fde68a" stroke-width="3" stroke-linecap="round"/>
-                    <path d="M 4 -4 L 6 -14" stroke="#fde68a" stroke-width="3" stroke-linecap="round"/>
+                    <circle cx="0" cy="0" r="8" fill="#fde68a" />
+                    <path d="M -4 -4 L -6 -14" stroke="#fde68a" stroke-width="3" stroke-linecap="round" />
+                    <path d="M 4 -4 L 6 -14" stroke="#fde68a" stroke-width="3" stroke-linecap="round" />
                   </g>
-                  
+
                   <!-- Peace / Victory Sign ✌️ -->
                   <g id="posePeace" style="display: none;">
-                    <circle cx="0" cy="0" r="8" fill="#fde68a"/>
-                    <path d="M -3 -3 L -5 -15" stroke="#fde68a" stroke-width="3.5" stroke-linecap="round"/>
-                    <path d="M 3 -3 L 5 -15" stroke="#fde68a" stroke-width="3.5" stroke-linecap="round"/>
+                    <circle cx="0" cy="0" r="8" fill="#fde68a" />
+                    <path d="M -3 -3 L -5 -15" stroke="#fde68a" stroke-width="3.5" stroke-linecap="round" />
+                    <path d="M 3 -3 L 5 -15" stroke="#fde68a" stroke-width="3.5" stroke-linecap="round" />
                   </g>
                 </g>
               </g>
@@ -149,37 +191,38 @@
               <!-- Head Container -->
               <g class="monkey-head">
                 <!-- Outer Ears -->
-                <circle cx="52" cy="70" r="18" fill="#92400e"/>
-                <circle cx="148" cy="70" r="18" fill="#92400e"/>
+                <circle cx="52" cy="70" r="18" fill="#92400e" />
+                <circle cx="148" cy="70" r="18" fill="#92400e" />
                 <!-- Inner Ears -->
-                <circle cx="52" cy="70" r="10" fill="#fde68a"/>
-                <circle cx="148" cy="70" r="10" fill="#fde68a"/>
+                <circle cx="52" cy="70" r="10" fill="#fde68a" />
+                <circle cx="148" cy="70" r="10" fill="#fde68a" />
 
                 <!-- Head Base -->
-                <circle cx="100" cy="75" r="42" fill="#92400e"/>
-                
+                <circle cx="100" cy="75" r="42" fill="#92400e" />
+
                 <!-- Face Mask -->
-                <path d="M70 70 Q 100 50 130 70 Q 135 95 100 102 Q 65 95 70 70 Z" fill="#fde68a"/>
+                <path d="M70 70 Q 100 50 130 70 Q 135 95 100 102 Q 65 95 70 70 Z" fill="#fde68a" />
 
                 <!-- Eyes -->
-                <circle id="eyeLeft" cx="84" cy="70" r="7" fill="#ffffff"/>
-                <circle id="eyeRight" cx="116" cy="70" r="7" fill="#ffffff"/>
+                <circle id="eyeLeft" cx="84" cy="70" r="7" fill="#ffffff" />
+                <circle id="eyeRight" cx="116" cy="70" r="7" fill="#ffffff" />
                 <!-- Pupils -->
-                <circle id="pupilLeft" cx="84" cy="70" r="3.5" fill="#0f172a"/>
-                <circle id="pupilRight" cx="116" cy="70" r="3.5" fill="#0f172a"/>
+                <circle id="pupilLeft" cx="84" cy="70" r="3.5" fill="#0f172a" />
+                <circle id="pupilRight" cx="116" cy="70" r="3.5" fill="#0f172a" />
 
                 <!-- Snout & Mouth -->
-                <ellipse cx="100" cy="86" rx="12" ry="7" fill="#78350f"/>
-                <path id="monkeyMouth" d="M88 92 Q 100 104 112 92" fill="none" stroke="#451a03" stroke-width="3" stroke-linecap="round"/>
+                <ellipse cx="100" cy="86" rx="12" ry="7" fill="#78350f" />
+                <path id="monkeyMouth" d="M88 92 Q 100 104 112 92" fill="none" stroke="#451a03" stroke-width="3"
+                  stroke-linecap="round" />
                 <!-- Silly Tongue (Hidden by default) -->
-                <path id="monkeyTongue" d="M94 96 Q 100 114 106 96 Z" fill="#ef4444" style="display: none;"/>
-                
+                <path id="monkeyTongue" d="M94 96 Q 100 114 106 96 Z" fill="#ef4444" style="display: none;" />
+
                 <!-- Graduation Cap for Academic Prank Theme -->
-                <polygon points="100,22 145,35 100,48 55,35" fill="#1e293b"/>
-                <rect x="85" y="32" width="30" height="12" fill="#334155"/>
+                <polygon points="100,22 145,35 100,48 55,35" fill="#1e293b" />
+                <rect x="85" y="32" width="30" height="12" fill="#334155" />
                 <!-- Tassel -->
-                <path d="M145 35 L 148 55" stroke="#f59e0b" stroke-width="3"/>
-                <circle cx="148" cy="57" r="3" fill="#f59e0b"/>
+                <path d="M145 35 L 148 55" stroke="#f59e0b" stroke-width="3" />
+                <circle cx="148" cy="57" r="3" fill="#f59e0b" />
               </g>
             </svg>
           </div>
@@ -196,13 +239,10 @@
             <span id="displayRollNo" class="row-value">-</span>
           </div>
           <div class="result-row">
-            <span class="row-label"><i class="fa-solid fa-award"></i> Official Classification:</span>
-            <span class="badge-grade">A+ MASTER MONKEY 🐒</span>
+            <span class="row-label"><i class="fa-solid fa-building-columns"></i> College:</span>
+            <span id="displayCollegeName" class="row-value">MUTHAYAMMAL ENGINEERING COLLEGE</span>
           </div>
-          <div class="result-row">
-            <span class="row-label"><i class="fa-solid fa-brain"></i> Favorite Food:</span>
-            <span class="row-value" style="color: var(--accent-yellow);">Bananas 🍌 & Mischief</span>
-          </div>
+
         </div>
 
         <!-- Interactive Prank Action Buttons -->
@@ -210,25 +250,11 @@
           <button id="throwBananaBtn" class="action-btn yellow">
             <span>🍌 Throw Banana</span>
           </button>
-          <button id="danceBtn" class="action-btn primary">
-            <span>💃 Party Pose 🤘</span>
-          </button>
-          <button id="tauntBtn" class="action-btn" style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); color: white; border: none;">
-            <span>👎 Thumbs Down Prank!</span>
-          </button>
-          <button id="squeakBtn" class="action-btn">
-            <span>✌️ Peace Sign</span>
-          </button>
-          <button id="downloadCertBtn" class="action-btn">
-            <span>📜 Download Certificate</span>
+          <button id="resetPrankBtn" class="action-btn outline">
+            <span>🔄 Prank Another Student</span>
           </button>
         </div>
 
-        <div style="text-align: center; margin-top: 24px;">
-          <button id="resetPrankBtn" class="action-btn" style="width: 100%;">
-            <i class="fa-solid fa-rotate-right"></i> Prank Another Student
-          </button>
-        </div>
       </section>
 
     </div>
@@ -239,4 +265,5 @@
 
   <script src="script.js"></script>
 </body>
+
 </html>

@@ -242,6 +242,16 @@ body {
   color: var(--accent-primary);
 }
 
+#studentName {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#studentName::placeholder {
+  text-transform: none;
+  letter-spacing: normal;
+}
+
 .submit-btn {
   width: 100%;
   padding: 16px;
@@ -638,3 +648,151 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* Readonly Input Styling */
+.readonly-field {
+  background: rgba(15, 23, 42, 0.6) !important;
+  border-color: rgba(99, 102, 241, 0.25) !important;
+  color: #a5b4fc !important;
+  cursor: not-allowed;
+  user-select: none;
+}
+
+.readonly-field:focus {
+  box-shadow: none !important;
+  border-color: rgba(99, 102, 241, 0.25) !important;
+}
+
+/* Login Error Box */
+.login-error-msg {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin-bottom: 18px;
+  text-align: center;
+  animation: shakeError 0.4s ease-in-out;
+}
+
+.login-error-msg strong {
+  color: #ffffff;
+}
+
+.login-error-msg i {
+  margin-right: 6px;
+  color: #f87171;
+}
+
+@keyframes shakeError {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+/* Dynamic Student Details Section (Revealed after typing student name) */
+.student-details-section {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+  transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.35s ease,
+              visibility 0.35s ease,
+              margin-bottom 0.35s ease;
+  margin-bottom: 0;
+}
+
+.student-details-section.active {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  margin-bottom: 8px;
+}
+
+.student-details-inner {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-top: 4px;
+}
+
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  width: fit-content;
+  animation: pulseGlow 2.5s infinite ease-in-out;
+}
+
+.verified-badge i {
+  color: #10b981;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 rgba(16, 185, 129, 0); }
+  50% { box-shadow: 0 0 12px rgba(16, 185, 129, 0.35); }
+}
+
+/* Gorilla Meme Image Container - FULL SIZE & UNCROPPED */
+.gorilla-image-container {
+  position: relative;
+  width: 100%;
+  max-width: 580px;
+  margin: 0 auto 24px auto;
+  border-radius: 24px;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.7);
+  box-shadow: 0 16px 45px rgba(236, 72, 153, 0.4), 0 0 35px rgba(245, 158, 11, 0.3);
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.gorilla-image-container:hover {
+  transform: scale(1.02);
+  box-shadow: 0 20px 55px rgba(236, 72, 153, 0.55), 0 0 45px rgba(245, 158, 11, 0.4);
+}
+
+.gorilla-meme-img {
+  width: 100%;
+  height: auto;
+  max-height: 520px;
+  object-fit: contain;
+  display: block;
+}
+
+.student-banner {
+  position: relative;
+  width: 100%;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.75) 0%, rgba(15, 23, 42, 0.95) 100%);
+  padding: 14px 16px;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+}
+
+.student-banner span {
+  display: inline-block;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 1.35rem;
+  color: #f59e0b;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+

@@ -12,9 +12,15 @@ document.addEventListener('DOMContentLoaded', () => {
   
   const studentNameInput = document.getElementById('studentName');
   const rollNoInput = document.getElementById('rollNo');
+  const collegeNameInput = document.getElementById('collegeName');
+  const studentDatalist = document.getElementById('studentDatalist');
+  const loginError = document.getElementById('loginError');
+  const studentDetailsSection = document.getElementById('studentDetailsSection');
+  const verifiedBadgeText = document.getElementById('verifiedBadgeText');
   
   const displayStudentName = document.getElementById('displayStudentName');
   const displayRollNo = document.getElementById('displayRollNo');
+  const displayCollegeName = document.getElementById('displayCollegeName');
   
   const progressFill = document.getElementById('progressFill');
   const loadingMessage = document.getElementById('loadingMessage');
@@ -39,6 +45,197 @@ document.addEventListener('DOMContentLoaded', () => {
   const poseThumbsDown = document.getElementById('poseThumbsDown');
   const poseRockOn = document.getElementById('poseRockOn');
   const posePeace = document.getElementById('posePeace');
+
+  // Authorized Student Records (Muthayammal Engineering College)
+  const COLLEGE_NAME = 'MUTHAYAMMAL ENGINEERING COLLEGE';
+  const authorizedStudents = [
+    { name: 'NANDHAKISHORE J', rollNo: '25EC131' },
+    { name: 'NAREEN KUMAR S D', rollNo: '25EC135' },
+    { name: 'NARENKARTHIC T A', rollNo: '25EC136' },
+    { name: 'NAVEEN D', rollNo: '25EC138' },
+    { name: 'NAVEEN J', rollNo: '25EC139' },
+    { name: 'NAVEEN R', rollNo: '25EC140' },
+    { name: 'NAVEENKUMAR S', rollNo: '25EC141' },
+    { name: 'NAVEENKUMAR S', rollNo: '25EC142' },
+    { name: 'NISHANTH M', rollNo: '25EC146' },
+    { name: 'NITHIN AHAMMED M', rollNo: '25EC147' },
+    { name: 'NITHISH P', rollNo: '25EC148' },
+    { name: 'NITHISH V', rollNo: '25EC149' },
+    { name: 'NITHISHKUMAR S', rollNo: '25EC150' },
+    { name: 'PADMAKANTH M', rollNo: '25EC153' },
+    { name: 'PERIYASAMY R', rollNo: '25EC155' },
+    { name: 'POOVITHAN R', rollNo: '25EC158' },
+    { name: 'PRAKASH K', rollNo: '25EC160' },
+    { name: 'PRAKASH P', rollNo: '25EC161' },
+    { name: 'PRAKATHISH P', rollNo: '25EC162' },
+    { name: 'PRANAV P', rollNo: '25EC163' },
+    { name: 'PRASANNA KUMAR M', rollNo: '25EC164' },
+    { name: 'PRAVEEN M', rollNo: '25EC165' },
+    { name: 'PRAVEENKUMAR K', rollNo: '25EC167' },
+    { name: 'PRAVEENKUMAR V', rollNo: '25EC168' },
+    { name: 'PRIYAN E', rollNo: '25EC173' },
+    { name: 'PURUSOTHAMAN S', rollNo: '25EC175' },
+    { name: 'RAGUL S', rollNo: '25EC176' },
+    { name: 'RAMAKRISHNAN M', rollNo: '25EC178' },
+    { name: 'RATHEESH R', rollNo: '25EC181' },
+    { name: 'RAVISH S', rollNo: '25EC183' },
+    { name: 'ROHITH S K', rollNo: '25EC185' },
+    { name: 'ROOBANGANESH S', rollNo: '25EC186' },
+    { name: 'SABARI R', rollNo: '25EC187' },
+    { name: 'SAI SARAN R', rollNo: '25EC189' }
+  ];
+
+  // Helper to normalize and sanitize strings
+  function cleanStr(str) {
+    return (str || '')
+      .toUpperCase()
+      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  // Pre-process authorized student database for robust matching
+  const processedStudents = authorizedStudents.map(s => {
+    const cleaned = cleanStr(s.name);
+    const tokens = cleaned.split(' ').filter(Boolean);
+    // Base name without 1-letter initials
+    const mainTokens = tokens.filter(t => t.length > 1);
+    const baseName = mainTokens.join(' ');
+    return {
+      name: s.name,
+      rollNo: s.rollNo,
+      cleanedName: cleaned,
+      baseName: baseName || cleaned,
+      tokens: tokens
+    };
+  });
+
+  // Strict lookup: ONLY students in authorizedStudents list are permitted
+  function resolveStudent(inputVal) {
+    if (!inputVal) return null;
+    const cleanInput = cleanStr(inputVal);
+    if (cleanInput.length < 2) return null;
+
+    // 1. Direct match with exact full name (e.g. "NARENKARTHIC T A")
+    const exact = processedStudents.find(s => s.cleanedName === cleanInput);
+    if (exact) return { matched: true, student: exact };
+
+    // 2. Direct match with roll number (e.g. "25EC136")
+    const matchRoll = processedStudents.find(s => cleanStr(s.rollNo) === cleanInput);
+    if (matchRoll) return { matched: true, student: matchRoll };
+
+    // 3. Compact match (ignoring all spaces e.g. "NARENKARTHICTA")
+    const compactInput = cleanInput.replace(/\s+/g, '');
+    const compactMatch = processedStudents.find(s => s.cleanedName.replace(/\s+/g, '') === compactInput);
+    if (compactMatch) return { matched: true, student: compactMatch };
+
+    // 4. Token permutation match (e.g. "T A NARENKARTHIC" or "J NANDHAKISHORE")
+    const inputTokens = cleanInput.split(' ').filter(Boolean);
+    const sortedInput = [...inputTokens].sort().join(' ');
+    const permMatch = processedStudents.find(s => [...s.tokens].sort().join(' ') === sortedInput);
+    if (permMatch) return { matched: true, student: permMatch };
+
+    // 5. Match with base name if unique (e.g. "NARENKARTHIC", "NANDHAKISHORE", "PRIYAN")
+    const baseMatches = processedStudents.filter(s => s.baseName === cleanInput);
+    if (baseMatches.length === 1) {
+      return { matched: true, student: baseMatches[0] };
+    } else if (baseMatches.length > 1) {
+      // Multiple records share the same base name (e.g. NAVEEN or PRAKASH)
+      // Check if user included initial token
+      const initialTokens = inputTokens.filter(t => t.length === 1);
+      if (initialTokens.length > 0) {
+        const withInitial = baseMatches.find(s => initialTokens.every(it => s.tokens.includes(it)));
+        if (withInitial) return { matched: true, student: withInitial };
+      }
+      return {
+        matched: false,
+        ambiguous: true,
+        ambiguousName: cleanInput,
+        suggestions: baseMatches.map(s => s.name)
+      };
+    }
+
+    // 6. Check if input matches starting words of a single record (at least 4 chars)
+    if (cleanInput.length >= 4) {
+      const prefixMatches = processedStudents.filter(s => s.cleanedName.startsWith(cleanInput));
+      if (prefixMatches.length === 1) {
+        return { matched: true, student: prefixMatches[0] };
+      }
+    }
+
+    // STRICT: Reject all names not in the authorized list
+    return null;
+  }
+
+  // Handle Input Changes to Dynamically Reveal and Auto-fill Roll & College
+  function handleStudentNameChange() {
+    const rawVal = studentNameInput.value.trim();
+
+    if (rawVal.length >= 3) {
+      const res = resolveStudent(rawVal);
+      if (res && res.matched) {
+        rollNoInput.value = res.student.rollNo;
+        if (collegeNameInput) collegeNameInput.value = COLLEGE_NAME;
+        if (verifiedBadgeText) {
+          verifiedBadgeText.textContent = `Verified: ${res.student.name}`;
+        }
+        if (studentDetailsSection) {
+          studentDetailsSection.classList.add('active');
+        }
+        if (loginError) loginError.style.display = 'none';
+        return;
+      }
+    }
+
+    // Retract if input does not match or is cleared
+    rollNoInput.value = '';
+    if (studentDetailsSection) {
+      studentDetailsSection.classList.remove('active');
+    }
+  }
+
+  studentNameInput.addEventListener('input', () => {
+    // Default to uppercase automatically if student enters name in lowercase
+    const start = studentNameInput.selectionStart;
+    const end = studentNameInput.selectionEnd;
+    studentNameInput.value = studentNameInput.value.toUpperCase();
+    if (start !== null && end !== null) {
+      studentNameInput.setSelectionRange(start, end);
+    }
+    handleStudentNameChange();
+  });
+  studentNameInput.addEventListener('change', handleStudentNameChange);
+
+  studentNameInput.addEventListener('blur', () => {
+    const rawVal = studentNameInput.value.trim();
+    if (!rawVal) {
+      if (loginError) loginError.style.display = 'none';
+      return;
+    }
+    const res = resolveStudent(rawVal);
+    if (!res || !res.matched) {
+      if (loginError) {
+        if (res && res.ambiguous) {
+          loginError.innerHTML = `<i class="fa-solid fa-circle-info"></i> Multiple records found for <strong>${escapeHtml(res.ambiguousName)}</strong>. Please include your initial (e.g. ${res.suggestions.map(s => escapeHtml(s)).join(', ')}).`;
+        } else {
+          loginError.innerHTML = '<i class="fa-solid fa-ban"></i> <strong>Student Record Not Found:</strong> Access is strictly restricted to registered Muthayammal Engineering College students.';
+        }
+        loginError.style.display = 'block';
+      }
+      if (studentDetailsSection) {
+        studentDetailsSection.classList.remove('active');
+      }
+      rollNoInput.value = '';
+    } else {
+      if (loginError) loginError.style.display = 'none';
+    }
+  });
 
   // State Variables
   let currentStudentName = 'Student';
@@ -165,16 +362,47 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     
     const nameVal = studentNameInput.value.trim();
-    const rollVal = rollNoInput.value.trim();
-
-    if (!nameVal || !rollVal) {
+    if (!nameVal || nameVal.length < 2) {
+      if (loginError) {
+        loginError.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Please enter your official student name to verify results.';
+        loginError.style.display = 'block';
+      }
+      studentNameInput.focus();
       return;
     }
 
-    currentStudentName = nameVal;
-    currentRollNo = rollVal;
+    const res = resolveStudent(nameVal);
+    if (!res || !res.matched) {
+      if (loginError) {
+        if (res && res.ambiguous) {
+          loginError.innerHTML = `<i class="fa-solid fa-circle-info"></i> Multiple records found for <strong>${escapeHtml(res.ambiguousName)}</strong>. Please include your initial (e.g. ${res.suggestions.map(s => escapeHtml(s)).join(', ')}).`;
+        } else {
+          loginError.innerHTML = '<i class="fa-solid fa-ban"></i> <strong>Student Record Not Found:</strong> Access is strictly restricted to registered Muthayammal Engineering College students.';
+        }
+        loginError.style.display = 'block';
+      }
+      if (studentDetailsSection) {
+        studentDetailsSection.classList.remove('active');
+      }
+      rollNoInput.value = '';
+      studentNameInput.focus();
+      return;
+    }
 
-    // Start Loading Sequence
+    if (loginError) loginError.style.display = 'none';
+
+    currentStudentName = res.student.name;
+    currentRollNo = res.student.rollNo;
+    studentNameInput.value = res.student.name;
+    rollNoInput.value = res.student.rollNo;
+    if (collegeNameInput) collegeNameInput.value = COLLEGE_NAME;
+
+    // Ensure details section is visible before going inside
+    if (studentDetailsSection) {
+      studentDetailsSection.classList.add('active');
+    }
+
+    // Start Loading Sequence and proceed inside!
     switchScreen(loadingScreen);
     startLoadingSequence();
   });
@@ -211,9 +439,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // SECURE DOM INSERTION (Prevents XSS vulnerabilities)
     displayStudentName.textContent = currentStudentName;
     displayRollNo.textContent = currentRollNo;
+    if (displayCollegeName) {
+      displayCollegeName.textContent = COLLEGE_NAME;
+    }
+
+    const bannerStudentName = document.getElementById('bannerStudentName');
+    if (bannerStudentName) {
+      bannerStudentName.textContent = `👑 ${currentStudentName} 👑`;
+    }
 
     // Set custom speech quote
-    speechBubble.textContent = `Aha! ${currentStudentName} (Roll: ${currentRollNo}) is officially a MONKEY! 🐒`;
+    speechBubble.textContent = `Aha! ${currentStudentName} (Roll: ${currentRollNo}) from MUTHAYAMMAL ENGINEERING COLLEGE is officially a MONKEY! 🐒`;
 
     // Trigger visual & audio rewards
     playFanfare();
@@ -221,12 +457,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Reset Prank
-  resetPrankBtn.addEventListener('click', () => {
-    portalForm.reset();
-    isDancing = false;
-    monkeyContainer.classList.remove('dancing');
-    switchScreen(loginScreen);
-  });
+  if (resetPrankBtn) {
+    resetPrankBtn.addEventListener('click', () => {
+      portalForm.reset();
+      isDancing = false;
+      if (monkeyContainer) monkeyContainer.classList.remove('dancing');
+      if (loginError) loginError.style.display = 'none';
+      if (studentDetailsSection) studentDetailsSection.classList.remove('active');
+      rollNoInput.value = '';
+      if (collegeNameInput) collegeNameInput.value = COLLEGE_NAME;
+      switchScreen(loginScreen);
+    });
+  }
 
   // --------------------------------------------------------------------------
   // INTERACTIVE MONKEY FEATURES
@@ -235,6 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Pupil Eye Tracking (Follows Cursor)
   document.addEventListener('mousemove', (e) => {
     if (!prankScreen.classList.contains('active')) return;
+    if (!monkeyContainer || !pupilLeft || !pupilRight) return;
 
     const rect = monkeyContainer.getBoundingClientRect();
     const monkeyCenterX = rect.left + rect.width / 2;
@@ -253,33 +496,40 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Click Monkey -> Reaction & Random Quote
-  monkeyContainer.addEventListener('click', () => {
-    playSqueakSound();
-    
-    // Animate mouth curve
-    monkeyMouth.setAttribute('d', 'M84 90 Q 100 115 116 90');
-    setTimeout(() => {
-      monkeyMouth.setAttribute('d', 'M88 92 Q 100 104 112 92');
-    }, 600);
+  if (monkeyContainer) {
+    monkeyContainer.addEventListener('click', () => {
+      playSqueakSound();
+      
+      // Animate mouth curve
+      if (monkeyMouth) {
+        monkeyMouth.setAttribute('d', 'M84 90 Q 100 115 116 90');
+        setTimeout(() => {
+          monkeyMouth.setAttribute('d', 'M88 92 Q 100 104 112 92');
+        }, 600);
+      }
 
-    // Random quote
-    const randomQuote = monkeyQuotes[Math.floor(Math.random() * monkeyQuotes.length)];
-    speechBubble.textContent = randomQuote;
+      // Random quote
+      const randomQuote = monkeyQuotes[Math.floor(Math.random() * monkeyQuotes.length)];
+      if (speechBubble) speechBubble.textContent = randomQuote;
 
-    // Quick bounce
-    monkeyContainer.style.transform = 'scale(1.2) rotate(8deg)';
-    setTimeout(() => {
-      monkeyContainer.style.transform = 'scale(1) rotate(0deg)';
-    }, 200);
-  });
+      // Quick bounce
+      monkeyContainer.style.transform = 'scale(1.2) rotate(8deg)';
+      setTimeout(() => {
+        monkeyContainer.style.transform = 'scale(1) rotate(0deg)';
+      }, 200);
+    });
+  }
 
   // Action Button: Throw Banana
-  throwBananaBtn.addEventListener('click', () => {
-    playPopSound();
-    spawnBananas(12);
-  });
+  if (throwBananaBtn) {
+    throwBananaBtn.addEventListener('click', () => {
+      playPopSound();
+      spawnBananas(12);
+    });
+  }
 
   function spawnBananas(count) {
+    if (!particleContainer) return;
     for (let i = 0; i < count; i++) {
       const banana = document.createElement('div');
       banana.classList.add('banana-particle');
@@ -297,54 +547,61 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Action Button: Party Pose (Rock On 🤘)
-  danceBtn.addEventListener('click', () => {
-    isDancing = !isDancing;
-    if (isDancing) {
-      monkeyContainer.classList.add('dancing');
-      showPose(poseRockOn);
-      speechBubble.textContent = '🤘 ROCK ON MONKEY TIME! 🎸';
-      danceBtn.innerHTML = '<span>⏸ Stop Pose</span>';
-      playFanfare();
-      spawnBananas(20);
-    } else {
-      monkeyContainer.classList.remove('dancing');
-      showPose(poseDefault);
-      speechBubble.textContent = 'Phew! Party over!';
-      danceBtn.innerHTML = '<span>💃 Party Pose 🤘</span>';
-    }
-  });
+  if (danceBtn) {
+    danceBtn.addEventListener('click', () => {
+      isDancing = !isDancing;
+      if (isDancing) {
+        if (monkeyContainer) monkeyContainer.classList.add('dancing');
+        showPose(poseRockOn);
+        if (speechBubble) speechBubble.textContent = '🤘 ROCK ON MONKEY TIME! 🎸';
+        danceBtn.innerHTML = '<span>⏸ Stop Pose</span>';
+        playFanfare();
+        spawnBananas(20);
+      } else {
+        if (monkeyContainer) monkeyContainer.classList.remove('dancing');
+        showPose(poseDefault);
+        if (speechBubble) speechBubble.textContent = 'Phew! Party over!';
+        danceBtn.innerHTML = '<span>💃 Party Pose 🤘</span>';
+      }
+    });
+  }
 
   // Action Button: Thumbs Down Prank Pose 👎
-  tauntBtn.addEventListener('click', () => {
-    isTaunting = !isTaunting;
-    if (isTaunting) {
-      monkeyTongue.style.display = 'block';
-      showPose(poseThumbsDown);
-      monkeyMouth.setAttribute('d', 'M84 90 Q 100 120 116 90');
-      speechBubble.textContent = '👎 FAIL! Zero marks for you! 🤪';
-      monkeyContainer.style.transform = 'scale(1.15) rotate(-10deg)';
-      playSqueakSound();
-    } else {
-      monkeyTongue.style.display = 'none';
-      showPose(poseDefault);
-      monkeyMouth.setAttribute('d', 'M88 92 Q 100 104 112 92');
-      speechBubble.textContent = 'OOH OOH AAH AAH! 🍌';
-      monkeyContainer.style.transform = 'scale(1) rotate(0deg)';
-    }
-  });
+  if (tauntBtn) {
+    tauntBtn.addEventListener('click', () => {
+      isTaunting = !isTaunting;
+      if (isTaunting) {
+        if (monkeyTongue) monkeyTongue.style.display = 'block';
+        showPose(poseThumbsDown);
+        if (monkeyMouth) monkeyMouth.setAttribute('d', 'M84 90 Q 100 120 116 90');
+        if (speechBubble) speechBubble.textContent = '👎 FAIL! Zero marks for you! 🤪';
+        if (monkeyContainer) monkeyContainer.style.transform = 'scale(1.15) rotate(-10deg)';
+        playSqueakSound();
+      } else {
+        if (monkeyTongue) monkeyTongue.style.display = 'none';
+        showPose(poseDefault);
+        if (monkeyMouth) monkeyMouth.setAttribute('d', 'M88 92 Q 100 104 112 92');
+        if (speechBubble) speechBubble.textContent = 'OOH OOH AAH AAH! 🍌';
+        if (monkeyContainer) monkeyContainer.style.transform = 'scale(1) rotate(0deg)';
+      }
+    });
+  }
 
   // Action Button: Peace Sign ✌️
-  squeakBtn.addEventListener('click', () => {
-    showPose(posePeace);
-    speechBubble.textContent = '✌️ Peace out, student! ✌️';
-    playSqueakSound();
-    setTimeout(() => {
-      if (!isDancing && !isTaunting) showPose(poseDefault);
-    }, 2000);
-  });
+  if (squeakBtn) {
+    squeakBtn.addEventListener('click', () => {
+      showPose(posePeace);
+      if (speechBubble) speechBubble.textContent = '✌️ Peace out, student! ✌️';
+      playSqueakSound();
+      setTimeout(() => {
+        if (!isDancing && !isTaunting) showPose(poseDefault);
+      }, 2000);
+    });
+  }
 
   // Confetti Animation Generator
   function triggerConfetti() {
+    if (!particleContainer) return;
     const colors = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#06b6d4'];
     for (let i = 0; i < 40; i++) {
       const confetti = document.createElement('div');
@@ -367,9 +624,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // --------------------------------------------------------------------------
   // PRANK CERTIFICATE CANVAS GENERATOR
   // --------------------------------------------------------------------------
-  downloadCertBtn.addEventListener('click', () => {
-    generateCertificate();
-  });
+  if (downloadCertBtn) {
+    downloadCertBtn.addEventListener('click', () => {
+      generateCertificate();
+    });
+  }
 
   function generateCertificate() {
     const ctx = certCanvas.getContext('2d');
@@ -394,23 +653,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Header Title
     ctx.fillStyle = '#f59e0b';
-    ctx.font = 'bold 34px "Outfit", sans-serif';
+    ctx.font = 'bold 32px "Outfit", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('OFFICIAL CERTIFICATE OF MISCHIEF', w / 2, 90);
+    ctx.fillText('OFFICIAL CERTIFICATE OF MISCHIEF', w / 2, 75);
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = 'bold 18px "Outfit", sans-serif';
+    ctx.fillText('MUTHAYAMMAL ENGINEERING COLLEGE', w / 2, 110);
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = '18px "Outfit", sans-serif';
-    ctx.fillText('THIS CERTIFIES THAT ACADEMIC EVALUATION HAS COMPLETED FOR:', w / 2, 140);
+    ctx.font = '16px "Outfit", sans-serif';
+    ctx.fillText('THIS CERTIFIES THAT ACADEMIC EVALUATION HAS COMPLETED FOR:', w / 2, 145);
 
     // Student Name
     ctx.fillStyle = '#ec4899';
-    ctx.font = 'bold 44px "Outfit", sans-serif';
-    ctx.fillText(currentStudentName.toUpperCase(), w / 2, 210);
+    ctx.font = 'bold 42px "Outfit", sans-serif';
+    ctx.fillText(currentStudentName.toUpperCase(), w / 2, 205);
 
     // Roll Number
     ctx.fillStyle = '#cbd5e1';
     ctx.font = '22px "Space Grotesk", monospace';
-    ctx.fillText(`Roll Number / ID: ${currentRollNo}`, w / 2, 255);
+    ctx.fillText(`Roll Number / ID: ${currentRollNo}`, w / 2, 250);
 
     // Main Prank Award Box
     ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
