@@ -92,6 +92,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Class / Student Database (Enum list completely hidden from browser datalist)
   const authorizedStudents = [
+    // CSE Department Students
+    {
+      name: 'GOKUL',
+      rollNo: '25CS069',
+      branch: 'B.E. - Computer Science & Engineering',
+      aliases: ['GOKUL']
+    },
+    {
+      name: 'JAYABASHKAR',
+      rollNo: '25CS096',
+      branch: 'B.E. - Computer Science & Engineering',
+      aliases: ['JAYABASHKAR', 'JAYABHASKAR', 'JAYABASKAR', 'JAYA BHASKAR', 'JAYA BASHKAR']
+    },
+    {
+      name: 'JAYASURIYAA',
+      rollNo: '25CS100',
+      branch: 'B.E. - Computer Science & Engineering',
+      aliases: ['JAYASURIYAA', 'JAYASURIYA', 'JAYASURYA', 'JAYA SURIYAA', 'JAYA SURIYA']
+    },
+    {
+      name: 'KAUSHIK',
+      rollNo: '25CS111',
+      branch: 'B.E. - Computer Science & Engineering',
+      aliases: ['KAUSHIK', 'KOWSHIK', 'KOUSHIK']
+    },
+
+    // ECE Department Students
     { name: 'NANDHAKISHORE J', rollNo: '25EC131', branch: 'B.E. - Electronics & Communication Engineering' },
     { name: 'NAREEN KUMAR S D', rollNo: '25EC135', branch: 'B.E. - Electronics & Communication Engineering' },
     { name: 'NAVEEN D', rollNo: '25EC138', branch: 'B.E. - Electronics & Communication Engineering' },
@@ -142,13 +169,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const cleaned = cleanStr(s.name);
     const tokens = cleaned.split(' ').filter(Boolean);
     const mainTokens = tokens.filter(t => t.length > 1);
+    const aliases = (s.aliases || []).map(a => cleanStr(a));
     return {
       name: s.name,
       rollNo: s.rollNo,
       branch: s.branch || DEFAULT_BRANCH,
       cleanedName: cleaned,
       baseName: mainTokens.join(' ') || cleaned,
-      tokens: tokens
+      tokens: tokens,
+      aliases: aliases
     };
   });
 
@@ -232,16 +261,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (cleanInput.length < 3) return [];
 
-    // Check if input directly matches or contains an authorized roll number (e.g. "25EC141" or "25EC142")
+    const compactInput = cleanInput.replace(/\s+/g, '');
+
+    // Check if input directly matches or contains an authorized roll number (e.g. "25CS111", "25EC141", etc.)
     for (const student of processedStudents) {
       const cleanRoll = cleanStr(student.rollNo);
-      if (cleanInput === cleanRoll || cleanInput === `25EC${cleanRoll.replace(/\D/g, '')}`) {
+      const compactRoll = cleanRoll.replace(/\s+/g, '');
+      const rollSuffix = compactRoll.replace(/^[0-9A-Z]*?(EC|CS)/i, '');
+      if (
+        cleanInput === cleanRoll ||
+        compactInput === compactRoll ||
+        (compactInput.length >= 3 && compactRoll.endsWith(compactInput)) ||
+        (rollSuffix.length >= 3 && compactInput === rollSuffix)
+      ) {
         return [student];
       }
     }
 
     // Special handling for NAVEENKUMAR S: Two members with this name (25EC141 and 25EC142)
-    const compactInput = cleanInput.replace(/\s+/g, '');
     if (
       compactInput === 'NAVEENKUMARS' ||
       compactInput === 'NAVEENKUMAR' ||
@@ -280,6 +317,32 @@ document.addEventListener('DOMContentLoaded', () => {
     // 6. Complete Base Name ignoring spaces
     const compactBaseMatches = processedStudents.filter(s => s.baseName.replace(/\s+/g, '') === compactInput);
     if (compactBaseMatches.length > 0) return compactBaseMatches;
+
+    // 7. Aliases Match (e.g. "JAYASURIYA", "JAYABHASKAR", "KOWSHIK", etc.)
+    const aliasMatches = processedStudents.filter(s =>
+      s.aliases && (
+        s.aliases.includes(cleanInput) ||
+        s.aliases.some(a => a.replace(/\s+/g, '') === compactInput)
+      )
+    );
+    if (aliasMatches.length > 0) return aliasMatches;
+
+    // 8. Single token student name with initial provided (e.g. user enters "GOKUL S" or "KAUSHIK R")
+    if (inputTokens.length >= 2) {
+      const tokenMatch = processedStudents.filter(s => {
+        if (s.tokens.length === 1) {
+          const studentToken = s.tokens[0];
+          if (inputTokens.includes(studentToken)) {
+            const otherTokens = inputTokens.filter(t => t !== studentToken);
+            if (otherTokens.every(t => t.length === 1)) {
+              return true;
+            }
+          }
+        }
+        return false;
+      });
+      if (tokenMatch.length === 1) return tokenMatch;
+    }
 
     return [];
   }
