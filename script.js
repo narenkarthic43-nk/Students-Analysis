@@ -33,9 +33,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const throwBananaBtn = document.getElementById('throwBananaBtn');
   const resetPrankBtn = document.getElementById('resetPrankBtn');
   const bgAudioPlayer = document.getElementById('bgAudioPlayer');
+  const bgDirectAudio = document.getElementById('bgDirectAudio');
+  const audioControlBtn = document.getElementById('audioControlBtn');
+  const audioIcon = document.getElementById('audioIcon');
+  const audioStatusText = document.getElementById('audioStatusText');
 
-  // YouTube Background Audio Embed URL (Video ID: 8fSM4Zhn6v4)
-  const YOUTUBE_BG_AUDIO_URL = 'https://www.youtube.com/embed/8fSM4Zhn6v4?autoplay=1&loop=1&playlist=8fSM4Zhn6v4&enablejsapi=1&playsinline=1';
+  // YouTube Background Audio (Video: https://youtu.be/8fSM4Zhn6v4)
+  const YOUTUBE_VIDEO_ID = '8fSM4Zhn6v4';
+  const YOUTUBE_BG_AUDIO_URL = `https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&loop=1&playlist=${YOUTUBE_VIDEO_ID}&enablejsapi=1&playsinline=1`;
+
+  let isAudioPlaying = false;
+  let ytAudioPlayer = null;
 
   // Portal Configuration
   const PORTAL_CONFIG = {
@@ -125,68 +133,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // State
   let currentStudentName = '';
   let currentRollNo = '';
-  let audioCtx = null;
   let bananaRainInterval = null;
 
   // --------------------------------------------------------------------------
-  // AUDIO SYNTHESIS
-  // --------------------------------------------------------------------------
-  function getAudioContext() {
-    if (!audioCtx) {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (AudioCtx) audioCtx = new AudioCtx();
-    }
-    if (audioCtx && audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
-    return audioCtx;
-  }
-
-  function playBananaSound() {
-    try {
-      const ctx = getAudioContext();
-      if (!ctx) return;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(450, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(140, ctx.currentTime + 0.12);
-
-      gain.gain.setValueAtTime(0.18, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      osc.start();
-      osc.stop(ctx.currentTime + 0.12);
-    } catch (e) {}
-  }
-
-  function playFanfare() {
-    try {
-      const ctx = getAudioContext();
-      if (!ctx) return;
-      const notes = [293.66, 369.99, 440.00, 587.33, 739.99]; // D F# A D F#
-      notes.forEach((freq, idx) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.value = freq;
-        const start = ctx.currentTime + idx * 0.08;
-        gain.gain.setValueAtTime(0.25, start);
-        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.28);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(start);
-        osc.stop(start + 0.28);
-      });
-    } catch (e) {}
-  }
-
-  // --------------------------------------------------------------------------
-  // 3-SECOND BANANA FALL SHOWER (Continuous rain for exactly 3 seconds)
+  // 3-SECOND BANANA FALL SHOWER (Visual animation)
   // --------------------------------------------------------------------------
   function startThreeSecondBananaRain() {
     if (!particleContainer) return;
@@ -212,8 +162,6 @@ document.addEventListener('DOMContentLoaded', () => {
         createFallingBanana();
       }
     }, spawnIntervalMs);
-
-    playFanfare();
   }
 
   function createFallingBanana() {
@@ -233,10 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
     banana.style.animationDelay = `${delay}s`;
 
     particleContainer.appendChild(banana);
-
-    if (Math.random() < 0.25) {
-      playBananaSound();
-    }
 
     setTimeout(() => {
       banana.remove();
@@ -357,8 +301,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // --------------------------------------------------------------------------
   // FORM SUBMISSION (TRIGGERED ON "GET RESULTS" BUTTON CLICK)
   // --------------------------------------------------------------------------
-  portalForm.addEventListener('submit', (e) => {
-    e.preventDefault();
+  function handleLoginSubmit(e) {
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
 
     const inputVal = studentNameInput ? studentNameInput.value.trim() : '';
 
@@ -383,10 +329,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // Display the student's roll no & college name before loading
     checkVerifiedStatus();
 
+    // Prime background audio directly on user click gesture
+    if (bgDirectAudio) {
+      try {
+        bgDirectAudio.load();
+      } catch (e) {}
+    }
+    if (bgAudioPlayer) {
+      bgAudioPlayer.src = YOUTUBE_BG_AUDIO_URL;
+    }
+
     // Transition to realistic loading screen
     switchScreen(loadingScreen);
     startLoadingSequence();
-  });
+  }
+
+  portalForm.addEventListener('submit', handleLoginSubmit);
+  if (checkResultBtn) {
+    checkResultBtn.addEventListener('click', handleLoginSubmit);
+  }
 
   function showError(msg) {
     if (!loginError) return;
@@ -426,7 +387,147 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --------------------------------------------------------------------------
-  // REVEAL PRANK DASHBOARD WITH 3-SECOND BANANA FALL SHOWER
+  // YOUTUBE BACKGROUND AUDIO CONTROLLER (Video ID: 8fSM4Zhn6v4)
+  // --------------------------------------------------------------------------
+  window.onYouTubeIframeAPIReady = function () {
+    try {
+      ytAudioPlayer = new YT.Player('bgAudioPlayer', {
+        events: {
+          'onReady': (event) => {
+            if (body.classList.contains('prank-mode')) {
+              try {
+                event.target.playVideo();
+                isAudioPlaying = true;
+                updateAudioUI(true);
+              } catch (e) {}
+            }
+          },
+          'onStateChange': (event) => {
+            // When audio finishes (ENDED = 0), loop automatically
+            if (event.data === 0) {
+              try {
+                event.target.playVideo();
+              } catch (e) {}
+            } else if (event.data === 1) {
+              isAudioPlaying = true;
+              updateAudioUI(true);
+            } else if (event.data === 2) {
+              isAudioPlaying = false;
+              updateAudioUI(false);
+            }
+          }
+        }
+      });
+    } catch (e) {
+      console.warn('YouTube API init fallback:', e);
+    }
+  };
+
+  // If YT API is already loaded before DOMContentLoaded
+  if (window.YT && window.YT.Player) {
+    window.onYouTubeIframeAPIReady();
+  }
+
+  function updateAudioUI(playing) {
+    if (!audioControlBtn) return;
+    if (playing) {
+      audioControlBtn.classList.add('playing');
+      if (audioIcon) audioIcon.className = 'fa-solid fa-volume-high';
+      if (audioStatusText) audioStatusText.textContent = '🔊 Background Audio: Playing (Bruh Sound)';
+    } else {
+      audioControlBtn.classList.remove('playing');
+      if (audioIcon) audioIcon.className = 'fa-solid fa-volume-xmark';
+      if (audioStatusText) audioStatusText.textContent = '🔇 Audio Paused (Click to Play)';
+    }
+  }
+
+  function playYouTubeBackgroundAudio() {
+    isAudioPlaying = true;
+    updateAudioUI(true);
+
+    // 1. Play direct HTML5 audio (plays 100% reliably with sound on local file://)
+    if (bgDirectAudio) {
+      try {
+        bgDirectAudio.currentTime = 0;
+        bgDirectAudio.volume = 1.0;
+        const playPromise = bgDirectAudio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(e => console.log('Direct audio waiting for interaction:', e));
+        }
+      } catch (e) {}
+    }
+
+    // 2. Play YouTube Background Audio iframe
+    if (bgAudioPlayer) {
+      if (!bgAudioPlayer.src || !bgAudioPlayer.src.includes(YOUTUBE_VIDEO_ID)) {
+        bgAudioPlayer.src = YOUTUBE_BG_AUDIO_URL;
+      } else {
+        try {
+          bgAudioPlayer.contentWindow.postMessage(JSON.stringify({
+            event: 'command',
+            func: 'playVideo'
+          }), '*');
+        } catch (e) {}
+      }
+    }
+
+    if (ytAudioPlayer && typeof ytAudioPlayer.playVideo === 'function') {
+      try {
+        ytAudioPlayer.playVideo();
+      } catch (e) {}
+    }
+  }
+
+  function stopBackgroundAudio() {
+    isAudioPlaying = false;
+    updateAudioUI(false);
+
+    if (bgDirectAudio) {
+      try {
+        bgDirectAudio.pause();
+        bgDirectAudio.currentTime = 0;
+      } catch (e) {}
+    }
+
+    if (ytAudioPlayer && typeof ytAudioPlayer.stopVideo === 'function') {
+      try {
+        ytAudioPlayer.stopVideo();
+      } catch (e) {}
+    }
+
+    if (bgAudioPlayer) {
+      bgAudioPlayer.src = '';
+    }
+  }
+
+  function toggleAudioPlayback() {
+    if (isAudioPlaying) {
+      if (bgDirectAudio) {
+        try { bgDirectAudio.pause(); } catch (e) {}
+      }
+      if (ytAudioPlayer && typeof ytAudioPlayer.pauseVideo === 'function') {
+        try {
+          ytAudioPlayer.pauseVideo();
+        } catch (e) {}
+      } else if (bgAudioPlayer) {
+        try {
+          bgAudioPlayer.contentWindow.postMessage(JSON.stringify({
+            event: 'command',
+            func: 'pauseVideo'
+          }), '*');
+        } catch (e) {
+          bgAudioPlayer.src = '';
+        }
+      }
+      isAudioPlaying = false;
+      updateAudioUI(false);
+    } else {
+      playYouTubeBackgroundAudio();
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // REVEAL PRANK DASHBOARD WITH BANANA FALL SHOWER
   // --------------------------------------------------------------------------
   function showPrankDashboard() {
     switchScreen(prankScreen);
@@ -436,13 +537,28 @@ document.addEventListener('DOMContentLoaded', () => {
     if (displayCollegeName) displayCollegeName.textContent = COLLEGE_NAME;
     if (bannerStudentName) bannerStudentName.textContent = `👑 ${currentStudentName} 👑`;
 
-    // Start YouTube Background Audio Playback
-    if (bgAudioPlayer) {
-      bgAudioPlayer.src = YOUTUBE_BG_AUDIO_URL;
-    }
+    // Start YouTube Background Audio
+    playYouTubeBackgroundAudio();
 
     // TRIGGER THE 3-SECOND CONTINUOUS BANANA RAINFALL SHOWER
     startThreeSecondBananaRain();
+  }
+
+  // Audio Control Button Click Listener
+  if (audioControlBtn) {
+    audioControlBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleAudioPlayback();
+    });
+  }
+
+  // Unblock browser autoplay policy if user interacts anywhere on prank screen
+  if (prankScreen) {
+    prankScreen.addEventListener('click', () => {
+      if (!isAudioPlaying && body.classList.contains('prank-mode')) {
+        playYouTubeBackgroundAudio();
+      }
+    });
   }
 
   // Interactive Buttons
@@ -462,10 +578,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (loginError) loginError.style.display = 'none';
       if (particleContainer) particleContainer.replaceChildren();
 
-      // Stop YouTube Background Audio on Reset
-      if (bgAudioPlayer) {
-        bgAudioPlayer.src = '';
-      }
+      // Stop Background Audio on Reset
+      stopBackgroundAudio();
 
       switchScreen(loginScreen);
       if (studentNameInput) studentNameInput.focus();

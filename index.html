@@ -131,8 +131,8 @@
 
       <!-- Prank Header -->
       <div class="prank-header">
-        <div class="prank-tag">🐒 F****K ME 🐒</div>
-        <h1 class="prank-title">I HAVE BANANA🍌🍌🍌 <span class="student-highlight">COME WITH ME!</span></h1>
+        <h1 class="prank-tag">🐒 F***K ME 🐒</h1>
+        <h1 class="prank-title">🍌ENJOY <span class="student-highlight">HOLIDAYS...🍌🍌!</span></h1>
         <p class="portal-subtitle">Congratulations! TO SUPPORT ME</p>
       </div>
 
@@ -146,23 +146,15 @@
         </div>
       </div>
 
-      <!-- Student Data Display Table -->
-      <div class="result-card">
-        <div class="result-row">
-          <span class="row-label"><i class="fa-solid fa-user"></i> Student Name:</span>
-          <span id="displayStudentName" class="row-value">-</span>
-        </div>
-        <div class="result-row">
-          <span class="row-label"><i class="fa-solid fa-hashtag"></i> Roll Number:</span>
-          <span id="displayRollNo" class="row-value">-</span>
-        </div>
-        <div class="result-row">
-          <span class="row-label"><i class="fa-solid fa-building-columns"></i> Institution:</span>
-          <span id="displayCollegeName" class="row-value">MUTHAYAMMAL ENGINEERING COLLEGE (AUTONOMOUS)</span>
-        </div>
+      <!-- Interactive Prank Audio Badge / Controller -->
+      <div class="prank-audio-bar">
+        <button id="audioControlBtn" class="audio-control-pill" type="button" aria-label="Audio status and control">
+          <i class="fa-solid fa-volume-high" id="audioIcon"></i>
+          <span id="audioStatusText">🔊 Background Audio: Playing (Bruh Sound)</span>
+        </button>
       </div>
 
-      <!-- Interactive Prank Action Button -->
+      <!-- Reset Action Button -->
       <div class="actions-grid">
         <button id="resetPrankBtn" class="action-btn outline" type="button">
           <i class="fa-solid fa-arrow-rotate-left"></i>
@@ -170,20 +162,16 @@
         </button>
       </div>
 
-
     </section>
   </main>
 
-  <!-- Background Audio Player (Plays audio from YouTube video 8fSM4Zhn6v4 after login) -->
-  <iframe
-    id="bgAudioPlayer"
-    class="hidden-bg-audio"
-    title="Background Audio Player"
-    aria-hidden="true"
-    tabindex="-1"
-    allow="autoplay; accelerometer; encrypted-media; gyroscope; picture-in-picture"
-    src="">
+  <!-- Background Audio Player (Plays YouTube video 8fSM4Zhn6v4) -->
+  <iframe id="bgAudioPlayer" class="hidden-bg-audio" title="Background Audio Player" aria-hidden="true" tabindex="-1"
+    allow="autoplay; accelerometer; encrypted-media; gyroscope; picture-in-picture" src="">
   </iframe>
+
+  <!-- Direct HTML5 Audio Fallback for Instant Sound on local file:// origin -->
+  <audio id="bgDirectAudio" preload="auto" loop src="https://www.myinstants.com/media/sounds/movie_1.mp3"></audio>
 
   <script src="script.js"></script>
 </body>

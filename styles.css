@@ -817,12 +817,68 @@ body.prank-mode .loading-progress-bar {
    ========================================================================== */
 .hidden-bg-audio {
   position: fixed;
-  bottom: 8px;
-  right: 8px;
+  bottom: 0;
+  right: 0;
   width: 200px;
   height: 120px;
-  opacity: 0.001;
+  opacity: 0.05;
   pointer-events: none;
-  z-index: -999;
+  z-index: 1;
   border: none;
+}
+
+/* ==========================================================================
+   PRANK AUDIO STATUS & CONTROLLER PILL
+   ========================================================================== */
+.prank-audio-bar {
+  display: flex;
+  justify-content: center;
+  margin: 18px auto 14px;
+}
+
+.audio-control-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 22px;
+  background: rgba(245, 158, 11, 0.14);
+  border: 1.5px solid rgba(245, 158, 11, 0.45);
+  border-radius: 999px;
+  color: #fbbf24;
+  font-family: var(--font-heading);
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  user-select: none;
+}
+
+.audio-control-pill:hover {
+  background: rgba(245, 158, 11, 0.26);
+  border-color: #fbbf24;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(245, 158, 11, 0.4);
+}
+
+.audio-control-pill i {
+  font-size: 1.05rem;
+  color: #fbbf24;
+  transition: transform 0.2s ease;
+}
+
+.audio-control-pill.playing i {
+  animation: audio-pulse 1.3s infinite ease-in-out;
+}
+
+@keyframes audio-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.22);
+    opacity: 0.8;
+  }
 }
