@@ -56,6 +56,17 @@
             </div>
           </div>
 
+          <!-- Roll Number Selector for Multiple Matches (e.g. NAVEENKUMAR S: 25EC141 & 25EC142) -->
+          <div id="rollSelectorWrap" class="roll-selector-wrap" style="display: none;">
+            <div class="roll-selector-header">
+              <i class="fa-solid fa-users-viewfinder"></i>
+              <span>Multiple students found. Please select your Roll No:</span>
+            </div>
+            <div id="rollOptionsContainer" class="roll-options-grid" role="radiogroup" aria-label="Select Roll Number">
+              <!-- Dynamically populated or switchable roll numbers -->
+            </div>
+          </div>
+
           <!-- Real-time Verification status card (Shows Student Name, Roll No & College Name after entering) -->
           <div id="verifiedStatusPill" class="verified-status-card" style="display: none;">
             <div class="verified-card-header">

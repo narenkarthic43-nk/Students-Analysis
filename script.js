@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const studentNameInput = document.getElementById('studentNameInput') || document.getElementById('studentInput');
 
+  const rollSelectorWrap = document.getElementById('rollSelectorWrap');
+  const rollOptionsContainer = document.getElementById('rollOptionsContainer');
+
   const verifiedStatusPill = document.getElementById('verifiedStatusPill');
   const verifiedStudentDesc = document.getElementById('verifiedStudentDesc');
   const verifiedNameDisplay = document.getElementById('verifiedNameDisplay');
@@ -165,6 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // State
   let currentStudentName = '';
   let currentRollNo = '';
+  let selectedStudent = null;
   let bananaRainInterval = null;
 
   // --------------------------------------------------------------------------
@@ -220,82 +224,208 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --------------------------------------------------------------------------
-  // STRICT STUDENT MATCHING: Matches ONLY when full name entry is completed!
-  // Partial prefixes (e.g. "NAREN" for "NARENKARTHIC") are NOT matched.
+  // STRICT STUDENT MATCHING:
+  // Supports single and multiple student matches (e.g. NAVEENKUMAR S: 25EC141 and 25EC142)
   // --------------------------------------------------------------------------
-  function findStudentMatch(inputVal) {
-    if (!inputVal) return null;
+  function findStudentMatches(inputVal) {
+    if (!inputVal) return [];
     const cleanInput = cleanStr(inputVal);
 
-    if (cleanInput.length < 3) return null;
+    if (cleanInput.length < 3) return [];
 
-    // Check if input directly matches or contains an authorized roll number (e.g. "25EC142" or "NAVEEN KUMAR S - 25EC142")
+    // Check if input directly matches or contains an authorized roll number (e.g. "25EC141" or "25EC142")
     for (const student of processedStudents) {
       const cleanRoll = cleanStr(student.rollNo);
-      if (cleanInput === cleanRoll || cleanInput.includes(cleanRoll)) {
-        return student;
+      if (cleanInput === cleanRoll || cleanInput === `25EC${cleanRoll.replace(/\D/g, '')}`) {
+        return [student];
       }
     }
 
-    // 1. Exact cleaned Full Name Match (e.g. "NARENKARTHIC T A", "NAVEEN KUMAR S", "POOVITHAN R")
-    const exactName = processedStudents.find(s => s.cleanedName === cleanInput);
-    if (exactName) return exactName;
-
-    // 2. Exact Roll Number Match (e.g. "25EC136")
-    const exactRoll = processedStudents.find(s => cleanStr(s.rollNo) === cleanInput);
-    if (exactRoll) return exactRoll;
-
-    // 3. Compact Full Name Match (ignoring spaces/punctuation, e.g. "NAVEENKUMARS", "NARENKARTHICTA")
+    // Special handling for NAVEENKUMAR S: Two members with this name (25EC141 and 25EC142)
     const compactInput = cleanInput.replace(/\s+/g, '');
-    const compactMatch = processedStudents.find(s => s.cleanedName.replace(/\s+/g, '') === compactInput);
-    if (compactMatch) return compactMatch;
+    if (
+      compactInput === 'NAVEENKUMARS' ||
+      compactInput === 'NAVEENKUMAR' ||
+      cleanInput === 'NAVEENKUMAR S' ||
+      cleanInput === 'NAVEEN KUMAR S' ||
+      cleanInput === 'NAVEEN KUMAR' ||
+      cleanInput === 'NAVEENKUMAR'
+    ) {
+      return processedStudents.filter(s => s.rollNo === '25EC141' || s.rollNo === '25EC142');
+    }
+
+    // 1. Exact cleaned Full Name Match
+    const exactMatches = processedStudents.filter(s => s.cleanedName === cleanInput);
+    if (exactMatches.length > 0) return exactMatches;
+
+    // 2. Exact Roll Number Match
+    const exactRollMatches = processedStudents.filter(s => cleanStr(s.rollNo) === cleanInput);
+    if (exactRollMatches.length > 0) return exactRollMatches;
+
+    // 3. Compact Full Name Match (ignoring spaces/punctuation)
+    const compactMatches = processedStudents.filter(s => s.cleanedName.replace(/\s+/g, '') === compactInput);
+    if (compactMatches.length > 0) return compactMatches;
 
     // 4. Full Token Permutation Match (all words in official name present)
     const inputTokens = cleanInput.split(' ').filter(Boolean);
     if (inputTokens.length >= 2) {
       const sortedInput = [...inputTokens].sort().join(' ');
-      const permMatch = processedStudents.find(s => [...s.tokens].sort().join(' ') === sortedInput);
-      if (permMatch) return permMatch;
+      const permMatches = processedStudents.filter(s => [...s.tokens].sort().join(' ') === sortedInput);
+      if (permMatches.length > 0) return permMatches;
     }
 
-    // 5. Complete Base Name Match (e.g. "NAVEEN KUMAR", "NARENKARTHIC", "PURUSOTHAMAN", "POOVITHAN", "ROOBANGANESH")
-    // Only matches when the user has typed the entire base name, NOT a partial prefix!
-    const baseMatch = processedStudents.find(s => s.baseName === cleanInput);
-    if (baseMatch) return baseMatch;
+    // 5. Complete Base Name Match (e.g. "NARENKARTHIC", "PURUSOTHAMAN", "POOVITHAN", "ROOBANGANESH")
+    const baseMatches = processedStudents.filter(s => s.baseName === cleanInput);
+    if (baseMatches.length > 0) return baseMatches;
 
-    // 6. Complete Base Name ignoring spaces (e.g. "NAVEENKUMAR", "PRASANNAKUMAR")
-    const compactBaseMatch = processedStudents.find(s => s.baseName.replace(/\s+/g, '') === compactInput);
-    if (compactBaseMatch) return compactBaseMatch;
+    // 6. Complete Base Name ignoring spaces
+    const compactBaseMatches = processedStudents.filter(s => s.baseName.replace(/\s+/g, '') === compactInput);
+    if (compactBaseMatches.length > 0) return compactBaseMatches;
 
-    // ANOTHER STUDENTS OR INCOMPLETE NAMES: Strictly return null!
-    return null;
+    return [];
   }
 
   // --------------------------------------------------------------------------
-  // INPUT EVENT HANDLERS & VERIFIED DETAILS DISPLAY
-  // Shows Student Name, Roll No, and College Name ONLY AFTER completing full entry
+  // RENDER DUAL ROLL NUMBER SELECTOR OPTIONS (25EC141 & 25EC142)
   // --------------------------------------------------------------------------
-  function checkVerifiedStatus() {
-    if (!studentNameInput) return null;
-    const rawVal = studentNameInput.value.trim();
-    if (rawVal.length >= 3) {
-      const match = findStudentMatch(rawVal);
-      if (match) {
+  function renderRollOptions(matches) {
+    if (!rollOptionsContainer) return;
+
+    rollOptionsContainer.replaceChildren();
+
+    matches.forEach(student => {
+      const isSelected = selectedStudent && selectedStudent.rollNo === student.rollNo;
+      const card = document.createElement('div');
+      card.className = `roll-option-card${isSelected ? ' selected' : ''}`;
+      card.setAttribute('data-roll', student.rollNo);
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'radio');
+      card.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+
+      const radioDiv = document.createElement('div');
+      radioDiv.className = 'card-radio';
+      const radioIcon = document.createElement('i');
+      radioIcon.className = isSelected ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle';
+      radioDiv.appendChild(radioIcon);
+
+      const detailsDiv = document.createElement('div');
+      detailsDiv.className = 'roll-option-details';
+
+      const badgeSpan = document.createElement('span');
+      badgeSpan.className = 'card-badge';
+      badgeSpan.textContent = student.rollNo;
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'card-name';
+      nameSpan.textContent = student.name;
+
+      detailsDiv.appendChild(badgeSpan);
+      detailsDiv.appendChild(nameSpan);
+
+      card.appendChild(radioDiv);
+      card.appendChild(detailsDiv);
+
+      const selectThisCard = () => {
+        selectedStudent = student;
+        // Update all cards visual state
+        const allCards = rollOptionsContainer.querySelectorAll('.roll-option-card');
+        allCards.forEach(c => {
+          const matchRoll = c.getAttribute('data-roll') === student.rollNo;
+          c.classList.toggle('selected', matchRoll);
+          c.setAttribute('aria-checked', matchRoll ? 'true' : 'false');
+          const icon = c.querySelector('.card-radio i');
+          if (icon) {
+            icon.className = matchRoll ? 'fa-solid fa-circle-check' : 'fa-regular fa-circle';
+          }
+        });
+
+        // Update verified status pill immediately
         if (verifiedStatusPill) {
-          if (verifiedStudentDesc) verifiedStudentDesc.textContent = 'Student Record Identified';
-          if (verifiedNameDisplay) verifiedNameDisplay.textContent = match.name;
-          if (verifiedRollNoDisplay) verifiedRollNoDisplay.textContent = match.rollNo;
+          if (verifiedStudentDesc) verifiedStudentDesc.textContent = 'Student Record Verified';
+          if (verifiedNameDisplay) verifiedNameDisplay.textContent = student.name;
+          if (verifiedRollNoDisplay) verifiedRollNoDisplay.textContent = student.rollNo;
           if (verifiedCollegeDisplay) verifiedCollegeDisplay.textContent = COLLEGE_NAME;
           verifiedStatusPill.style.display = 'block';
         }
         if (loginError) loginError.style.display = 'none';
-        return match;
+      };
+
+      card.addEventListener('click', selectThisCard);
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          selectThisCard();
+        }
+      });
+
+      rollOptionsContainer.appendChild(card);
+    });
+  }
+
+  // --------------------------------------------------------------------------
+  // INPUT EVENT HANDLERS & VERIFIED DETAILS DISPLAY
+  // Shows Student Name, Roll No, and College Name
+  // --------------------------------------------------------------------------
+  function checkVerifiedStatus() {
+    if (!studentNameInput) return null;
+    const rawVal = studentNameInput.value.trim();
+
+    if (rawVal.length < 3) {
+      if (rollSelectorWrap) rollSelectorWrap.style.display = 'none';
+      if (verifiedStatusPill) verifiedStatusPill.style.display = 'none';
+      selectedStudent = null;
+      return null;
+    }
+
+    const matches = findStudentMatches(rawVal);
+
+    if (matches.length === 0) {
+      if (rollSelectorWrap) rollSelectorWrap.style.display = 'none';
+      if (verifiedStatusPill) verifiedStatusPill.style.display = 'none';
+      selectedStudent = null;
+      return null;
+    }
+
+    // Single student match
+    if (matches.length === 1) {
+      if (rollSelectorWrap) rollSelectorWrap.style.display = 'none';
+      selectedStudent = matches[0];
+      if (verifiedStatusPill) {
+        if (verifiedStudentDesc) verifiedStudentDesc.textContent = 'Student Record Identified';
+        if (verifiedNameDisplay) verifiedNameDisplay.textContent = selectedStudent.name;
+        if (verifiedRollNoDisplay) verifiedRollNoDisplay.textContent = selectedStudent.rollNo;
+        if (verifiedCollegeDisplay) verifiedCollegeDisplay.textContent = COLLEGE_NAME;
+        verifiedStatusPill.style.display = 'block';
+      }
+      if (loginError) loginError.style.display = 'none';
+      return selectedStudent;
+    }
+
+    // Multiple student matches (e.g. 25EC141 and 25EC142 for NAVEENKUMAR S)
+    if (matches.length > 1) {
+      if (rollSelectorWrap) {
+        rollSelectorWrap.style.display = 'block';
+        renderRollOptions(matches);
+      }
+
+      // Check if selectedStudent is one of the valid matches
+      const isSelectedValid = selectedStudent && matches.some(m => m.rollNo === selectedStudent.rollNo);
+      if (isSelectedValid) {
+        if (verifiedStatusPill) {
+          if (verifiedStudentDesc) verifiedStudentDesc.textContent = 'Student Record Verified';
+          if (verifiedNameDisplay) verifiedNameDisplay.textContent = selectedStudent.name;
+          if (verifiedRollNoDisplay) verifiedRollNoDisplay.textContent = selectedStudent.rollNo;
+          if (verifiedCollegeDisplay) verifiedCollegeDisplay.textContent = COLLEGE_NAME;
+          verifiedStatusPill.style.display = 'block';
+        }
+        return selectedStudent;
+      } else {
+        // Not selected yet
+        if (verifiedStatusPill) verifiedStatusPill.style.display = 'none';
+        return null;
       }
     }
 
-    if (verifiedStatusPill) {
-      verifiedStatusPill.style.display = 'none';
-    }
     return null;
   }
 
@@ -355,17 +485,32 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const match = findStudentMatch(inputVal);
-    if (!match) {
+    const matches = findStudentMatches(inputVal);
+    if (matches.length === 0) {
       showError('Access Denied: Please enter your full completed name (e.g. SURESH M). Unregistered students are not allowed.');
       if (studentNameInput) studentNameInput.focus();
       return;
     }
 
+    // If multiple students match and user has not selected one yet
+    if (matches.length > 1) {
+      const isSelectedValid = selectedStudent && matches.some(m => m.rollNo === selectedStudent.rollNo);
+      if (!isSelectedValid) {
+        showError('Multiple records found. Please select your Roll Number (25EC141 or 25EC142) above to proceed.');
+        if (rollSelectorWrap) {
+          rollSelectorWrap.style.display = 'block';
+          renderRollOptions(matches);
+          rollSelectorWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        return;
+      }
+    }
+
+    const finalStudent = selectedStudent || matches[0];
     if (loginError) loginError.style.display = 'none';
 
-    currentStudentName = match.name;
-    currentRollNo = match.rollNo;
+    currentStudentName = finalStudent.name;
+    currentRollNo = finalStudent.rollNo;
 
     // Display the student's roll no & college name before loading
     checkVerifiedStatus();
@@ -633,6 +778,9 @@ document.addEventListener('DOMContentLoaded', () => {
       portalForm.reset();
       currentStudentName = '';
       currentRollNo = '';
+      selectedStudent = null;
+      if (rollSelectorWrap) rollSelectorWrap.style.display = 'none';
+      if (rollOptionsContainer) rollOptionsContainer.replaceChildren();
       if (verifiedStatusPill) verifiedStatusPill.style.display = 'none';
       if (loginError) loginError.style.display = 'none';
       if (particleContainer) particleContainer.replaceChildren();
