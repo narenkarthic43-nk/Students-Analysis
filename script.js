@@ -1,91 +1,92 @@
 /* ==========================================================================
-   STUDENT ACADEMIC PORTAL & PRANK DASHBOARD - SCRIPT
-   Secure, Interactive & Fully Responsive Vanilla JavaScript Application
+   MUTHAYAMMAL ENGINEERING COLLEGE - CONTROLLER OF EXAMINATIONS
+   PORTAL SCRIPT
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
   // DOM Elements
+  const body = document.body;
   const loginScreen = document.getElementById('loginScreen');
   const loadingScreen = document.getElementById('loadingScreen');
   const prankScreen = document.getElementById('prankScreen');
   const portalForm = document.getElementById('portalForm');
-  
-  const studentNameInput = document.getElementById('studentName');
-  const rollNoInput = document.getElementById('rollNo');
-  const collegeNameInput = document.getElementById('collegeName');
-  const studentDatalist = document.getElementById('studentDatalist');
+
+  const studentNameInput = document.getElementById('studentNameInput') || document.getElementById('studentInput');
+
+  const verifiedStatusPill = document.getElementById('verifiedStatusPill');
+  const verifiedStudentDesc = document.getElementById('verifiedStudentDesc');
+  const verifiedNameDisplay = document.getElementById('verifiedNameDisplay');
+  const verifiedRollNoDisplay = document.getElementById('verifiedRollNoDisplay');
+  const verifiedCollegeDisplay = document.getElementById('verifiedCollegeDisplay');
   const loginError = document.getElementById('loginError');
-  const studentDetailsSection = document.getElementById('studentDetailsSection');
-  const verifiedBadgeText = document.getElementById('verifiedBadgeText');
-  
+  const checkResultBtn = document.getElementById('checkResultBtn');
+
   const displayStudentName = document.getElementById('displayStudentName');
   const displayRollNo = document.getElementById('displayRollNo');
   const displayCollegeName = document.getElementById('displayCollegeName');
-  
+  const bannerStudentName = document.getElementById('bannerStudentName');
+
   const progressFill = document.getElementById('progressFill');
   const loadingMessage = document.getElementById('loadingMessage');
-  
-  const monkeyContainer = document.getElementById('monkeyInteractive');
-  const speechBubble = document.getElementById('speechBubble');
-  const pupilLeft = document.getElementById('pupilLeft');
-  const pupilRight = document.getElementById('pupilRight');
-  const monkeyMouth = document.getElementById('monkeyMouth');
   const particleContainer = document.getElementById('particleContainer');
-  
-  const throwBananaBtn = document.getElementById('throwBananaBtn');
-  const danceBtn = document.getElementById('danceBtn');
-  const tauntBtn = document.getElementById('tauntBtn');
-  const squeakBtn = document.getElementById('squeakBtn');
-  const downloadCertBtn = document.getElementById('downloadCertBtn');
-  const resetPrankBtn = document.getElementById('resetPrankBtn');
-  const certCanvas = document.getElementById('certCanvas');
-  const monkeyTongue = document.getElementById('monkeyTongue');
-  
-  const poseDefault = document.getElementById('poseDefault');
-  const poseThumbsDown = document.getElementById('poseThumbsDown');
-  const poseRockOn = document.getElementById('poseRockOn');
-  const posePeace = document.getElementById('posePeace');
 
-  // Authorized Student Records (Muthayammal Engineering College)
-  const COLLEGE_NAME = 'MUTHAYAMMAL ENGINEERING COLLEGE';
+  const throwBananaBtn = document.getElementById('throwBananaBtn');
+  const resetPrankBtn = document.getElementById('resetPrankBtn');
+  const bgAudioPlayer = document.getElementById('bgAudioPlayer');
+
+  // YouTube Background Audio Embed URL (Video ID: 8fSM4Zhn6v4)
+  const YOUTUBE_BG_AUDIO_URL = 'https://www.youtube.com/embed/8fSM4Zhn6v4?autoplay=1&loop=1&playlist=8fSM4Zhn6v4&enablejsapi=1&playsinline=1';
+
+  // Portal Configuration
+  const PORTAL_CONFIG = {
+    collegeName: 'MUTHAYAMMAL ENGINEERING COLLEGE (AUTONOMOUS)',
+    defaultBranch: 'B.E. - Electronics & Communication Engineering',
+    defaultSession: 'Nov/Dec 2025 - Regular'
+  };
+
+  const COLLEGE_NAME = PORTAL_CONFIG.collegeName;
+  const DEFAULT_BRANCH = PORTAL_CONFIG.defaultBranch;
+
+  // Class / Student Database (Enum list completely hidden from browser datalist)
   const authorizedStudents = [
-    { name: 'NANDHAKISHORE J', rollNo: '25EC131' },
-    { name: 'NAREEN KUMAR S D', rollNo: '25EC135' },
-    { name: 'NARENKARTHIC T A', rollNo: '25EC136' },
-    { name: 'NAVEEN D', rollNo: '25EC138' },
-    { name: 'NAVEEN J', rollNo: '25EC139' },
-    { name: 'NAVEEN R', rollNo: '25EC140' },
-    { name: 'NAVEENKUMAR S', rollNo: '25EC141' },
-    { name: 'NAVEENKUMAR S', rollNo: '25EC142' },
-    { name: 'NISHANTH M', rollNo: '25EC146' },
-    { name: 'NITHIN AHAMMED M', rollNo: '25EC147' },
-    { name: 'NITHISH P', rollNo: '25EC148' },
-    { name: 'NITHISH V', rollNo: '25EC149' },
-    { name: 'NITHISHKUMAR S', rollNo: '25EC150' },
-    { name: 'PADMAKANTH M', rollNo: '25EC153' },
-    { name: 'PERIYASAMY R', rollNo: '25EC155' },
-    { name: 'POOVITHAN R', rollNo: '25EC158' },
-    { name: 'PRAKASH K', rollNo: '25EC160' },
-    { name: 'PRAKASH P', rollNo: '25EC161' },
-    { name: 'PRAKATHISH P', rollNo: '25EC162' },
-    { name: 'PRANAV P', rollNo: '25EC163' },
-    { name: 'PRASANNA KUMAR M', rollNo: '25EC164' },
-    { name: 'PRAVEEN M', rollNo: '25EC165' },
-    { name: 'PRAVEENKUMAR K', rollNo: '25EC167' },
-    { name: 'PRAVEENKUMAR V', rollNo: '25EC168' },
-    { name: 'PRIYAN E', rollNo: '25EC173' },
-    { name: 'PURUSOTHAMAN S', rollNo: '25EC175' },
-    { name: 'RAGUL S', rollNo: '25EC176' },
-    { name: 'RAMAKRISHNAN M', rollNo: '25EC178' },
-    { name: 'RATHEESH R', rollNo: '25EC181' },
-    { name: 'RAVISH S', rollNo: '25EC183' },
-    { name: 'ROHITH S K', rollNo: '25EC185' },
-    { name: 'ROOBANGANESH S', rollNo: '25EC186' },
-    { name: 'SABARI R', rollNo: '25EC187' },
-    { name: 'SAI SARAN R', rollNo: '25EC189' }
+    { name: 'NANDHAKISHORE J', rollNo: '25EC131', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'NAREEN KUMAR S D', rollNo: '25EC135', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'NARENKARTHIC T A', rollNo: '25EC136', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'NAVEEN D', rollNo: '25EC138', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'NAVEEN J', rollNo: '25EC139', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'NAVEEN R', rollNo: '25EC140', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'NAVEENKUMAR S', rollNo: '25EC141', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'NAVEENKUMAR S', rollNo: '25EC142', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'NISHANTH M', rollNo: '25EC146', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'NITHIN AHAMMED M', rollNo: '25EC147', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'NITHISH P', rollNo: '25EC148', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'NITHISH V', rollNo: '25EC149', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'NITHISHKUMAR S', rollNo: '25EC150', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'PADMAKANTH M', rollNo: '25EC153', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'PERIYASAMY R', rollNo: '25EC155', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'POOVITHAN R', rollNo: '25EC158', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'PRAKASH K', rollNo: '25EC160', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'PRAKASH P', rollNo: '25EC161', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'PRAKATHISH P', rollNo: '25EC162', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'PRANAV P', rollNo: '25EC163', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'PRASANNA KUMAR M', rollNo: '25EC164', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'PRAVEEN M', rollNo: '25EC165', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'PRAVEENKUMAR K', rollNo: '25EC167', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'PRAVEENKUMAR V', rollNo: '25EC168', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'PRIYAN E', rollNo: '25EC173', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'PURUSOTHAMAN S', rollNo: '25EC175', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'RAGUL S', rollNo: '25EC176', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'RAMAKRISHNAN M', rollNo: '25EC178', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'RATHEESH R', rollNo: '25EC181', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'RAVISH S', rollNo: '25EC183', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'ROHITH S K', rollNo: '25EC185', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'ROOBANGANESH S', rollNo: '25EC186', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'SABARI R', rollNo: '25EC187', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'SAI SARAN R', rollNo: '25EC189', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'SURESH M', rollNo: '25EC195', branch: 'B.E. - Electronics & Communication Engineering' }
   ];
 
-  // Helper to normalize and sanitize strings
+  // Helper string cleaner
   function cleanStr(str) {
     return (str || '')
       .toUpperCase()
@@ -94,327 +95,319 @@ document.addEventListener('DOMContentLoaded', () => {
       .trim();
   }
 
-  function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str || '';
-    return div.innerHTML;
-  }
-
-  // Pre-process authorized student database for robust matching
+  // Pre-process student records for lookup
   const processedStudents = authorizedStudents.map(s => {
     const cleaned = cleanStr(s.name);
     const tokens = cleaned.split(' ').filter(Boolean);
-    // Base name without 1-letter initials
     const mainTokens = tokens.filter(t => t.length > 1);
-    const baseName = mainTokens.join(' ');
     return {
       name: s.name,
       rollNo: s.rollNo,
+      branch: s.branch || DEFAULT_BRANCH,
       cleanedName: cleaned,
-      baseName: baseName || cleaned,
+      baseName: mainTokens.join(' ') || cleaned,
       tokens: tokens
     };
   });
 
-  // Strict lookup: ONLY students in authorizedStudents list are permitted
-  function resolveStudent(inputVal) {
-    if (!inputVal) return null;
-    const cleanInput = cleanStr(inputVal);
-    if (cleanInput.length < 2) return null;
-
-    // 1. Direct match with exact full name (e.g. "NARENKARTHIC T A")
-    const exact = processedStudents.find(s => s.cleanedName === cleanInput);
-    if (exact) return { matched: true, student: exact };
-
-    // 2. Direct match with roll number (e.g. "25EC136")
-    const matchRoll = processedStudents.find(s => cleanStr(s.rollNo) === cleanInput);
-    if (matchRoll) return { matched: true, student: matchRoll };
-
-    // 3. Compact match (ignoring all spaces e.g. "NARENKARTHICTA")
-    const compactInput = cleanInput.replace(/\s+/g, '');
-    const compactMatch = processedStudents.find(s => s.cleanedName.replace(/\s+/g, '') === compactInput);
-    if (compactMatch) return { matched: true, student: compactMatch };
-
-    // 4. Token permutation match (e.g. "T A NARENKARTHIC" or "J NANDHAKISHORE")
-    const inputTokens = cleanInput.split(' ').filter(Boolean);
-    const sortedInput = [...inputTokens].sort().join(' ');
-    const permMatch = processedStudents.find(s => [...s.tokens].sort().join(' ') === sortedInput);
-    if (permMatch) return { matched: true, student: permMatch };
-
-    // 5. Match with base name if unique (e.g. "NARENKARTHIC", "NANDHAKISHORE", "PRIYAN")
-    const baseMatches = processedStudents.filter(s => s.baseName === cleanInput);
-    if (baseMatches.length === 1) {
-      return { matched: true, student: baseMatches[0] };
-    } else if (baseMatches.length > 1) {
-      // Multiple records share the same base name (e.g. NAVEEN or PRAKASH)
-      // Check if user included initial token
-      const initialTokens = inputTokens.filter(t => t.length === 1);
-      if (initialTokens.length > 0) {
-        const withInitial = baseMatches.find(s => initialTokens.every(it => s.tokens.includes(it)));
-        if (withInitial) return { matched: true, student: withInitial };
-      }
-      return {
-        matched: false,
-        ambiguous: true,
-        ambiguousName: cleanInput,
-        suggestions: baseMatches.map(s => s.name)
-      };
+  // Generate an authentic roll number for any custom/friend name
+  function generateRollNo(name) {
+    let hash = 0;
+    const clean = cleanStr(name);
+    for (let i = 0; i < clean.length; i++) {
+      hash = ((hash << 5) - hash) + clean.charCodeAt(i);
+      hash |= 0;
     }
-
-    // 6. Check if input matches starting words of a single record (at least 4 chars)
-    if (cleanInput.length >= 4) {
-      const prefixMatches = processedStudents.filter(s => s.cleanedName.startsWith(cleanInput));
-      if (prefixMatches.length === 1) {
-        return { matched: true, student: prefixMatches[0] };
-      }
-    }
-
-    // STRICT: Reject all names not in the authorized list
-    return null;
+    const num = Math.abs(hash % 70) + 130; // Range: 25EC130 to 25EC200
+    return `25EC${num}`;
   }
 
-  // Handle Input Changes to Dynamically Reveal and Auto-fill Roll & College
-  function handleStudentNameChange() {
-    const rawVal = studentNameInput.value.trim();
-
-    if (rawVal.length >= 3) {
-      const res = resolveStudent(rawVal);
-      if (res && res.matched) {
-        rollNoInput.value = res.student.rollNo;
-        if (collegeNameInput) collegeNameInput.value = COLLEGE_NAME;
-        if (verifiedBadgeText) {
-          verifiedBadgeText.textContent = `Verified: ${res.student.name}`;
-        }
-        if (studentDetailsSection) {
-          studentDetailsSection.classList.add('active');
-        }
-        if (loginError) loginError.style.display = 'none';
-        return;
-      }
-    }
-
-    // Retract if input does not match or is cleared
-    rollNoInput.value = '';
-    if (studentDetailsSection) {
-      studentDetailsSection.classList.remove('active');
-    }
-  }
-
-  studentNameInput.addEventListener('input', () => {
-    // Default to uppercase automatically if student enters name in lowercase
-    const start = studentNameInput.selectionStart;
-    const end = studentNameInput.selectionEnd;
-    studentNameInput.value = studentNameInput.value.toUpperCase();
-    if (start !== null && end !== null) {
-      studentNameInput.setSelectionRange(start, end);
-    }
-    handleStudentNameChange();
-  });
-  studentNameInput.addEventListener('change', handleStudentNameChange);
-
-  studentNameInput.addEventListener('blur', () => {
-    const rawVal = studentNameInput.value.trim();
-    if (!rawVal) {
-      if (loginError) loginError.style.display = 'none';
-      return;
-    }
-    const res = resolveStudent(rawVal);
-    if (!res || !res.matched) {
-      if (loginError) {
-        if (res && res.ambiguous) {
-          loginError.innerHTML = `<i class="fa-solid fa-circle-info"></i> Multiple records found for <strong>${escapeHtml(res.ambiguousName)}</strong>. Please include your initial (e.g. ${res.suggestions.map(s => escapeHtml(s)).join(', ')}).`;
-        } else {
-          loginError.innerHTML = '<i class="fa-solid fa-ban"></i> <strong>Student Record Not Found:</strong> Access is strictly restricted to registered Muthayammal Engineering College students.';
-        }
-        loginError.style.display = 'block';
-      }
-      if (studentDetailsSection) {
-        studentDetailsSection.classList.remove('active');
-      }
-      rollNoInput.value = '';
-    } else {
-      if (loginError) loginError.style.display = 'none';
-    }
-  });
-
-  // State Variables
-  let currentStudentName = 'Student';
-  let currentRollNo = '2026-CS-001';
-  let isDancing = false;
-  let isTaunting = false;
+  // State
+  let currentStudentName = '';
+  let currentRollNo = '';
   let audioCtx = null;
-
-  function showPose(targetPose) {
-    [poseDefault, poseThumbsDown, poseRockOn, posePeace].forEach(pose => {
-      if (pose) pose.style.display = 'none';
-    });
-    if (targetPose) targetPose.style.display = 'block';
-  }
-
-  // Speech Quotes Database
-  const monkeyQuotes = [
-    "OOH OOH AAH AAH! 🍌",
-    "Give me all your bananas!",
-    "Certified 100% Code Monkey!",
-    "Where is my homework? I ate it!",
-    "Prank level: EXPERT! 🐒",
-    "Banana score: 999,999!"
-  ];
+  let bananaRainInterval = null;
 
   // --------------------------------------------------------------------------
-  // WEB AUDIO API SYNTHESIZER (No external audio files needed!)
+  // AUDIO SYNTHESIS
   // --------------------------------------------------------------------------
   function getAudioContext() {
     if (!audioCtx) {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      audioCtx = new AudioContext();
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) audioCtx = new AudioCtx();
     }
-    if (audioCtx.state === 'suspended') {
+    if (audioCtx && audioCtx.state === 'suspended') {
       audioCtx.resume();
     }
     return audioCtx;
   }
 
-  // Play Squeak / Boing Sound Effect
-  function playSqueakSound() {
+  function playBananaSound() {
     try {
       const ctx = getAudioContext();
+      if (!ctx) return;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(400, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.15);
-      osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.3);
+      osc.frequency.setValueAtTime(450, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(140, ctx.currentTime + 0.12);
 
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+      gain.gain.setValueAtTime(0.18, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
 
       osc.connect(gain);
       gain.connect(ctx.destination);
 
       osc.start();
-      osc.stop(ctx.currentTime + 0.3);
-    } catch (e) {
-      // Graceful fallback if Web Audio is restricted
-    }
+      osc.stop(ctx.currentTime + 0.12);
+    } catch (e) {}
   }
 
-  // Play Fanfare / Melody Sound
   function playFanfare() {
     try {
       const ctx = getAudioContext();
-      const notes = [261.63, 329.63, 392.00, 523.25, 659.25]; // C E G C E
+      if (!ctx) return;
+      const notes = [293.66, 369.99, 440.00, 587.33, 739.99]; // D F# A D F#
       notes.forEach((freq, idx) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-
         osc.type = 'triangle';
         osc.frequency.value = freq;
-
-        const startTime = ctx.currentTime + idx * 0.1;
-        gain.gain.setValueAtTime(0.2, startTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.25);
-
+        const start = ctx.currentTime + idx * 0.08;
+        gain.gain.setValueAtTime(0.25, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.28);
         osc.connect(gain);
         gain.connect(ctx.destination);
-
-        osc.start(startTime);
-        osc.stop(startTime + 0.25);
+        osc.start(start);
+        osc.stop(start + 0.28);
       });
     } catch (e) {}
   }
 
-  // Play Pop / Banana Catch Sound
-  function playPopSound() {
-    try {
-      const ctx = getAudioContext();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
+  // --------------------------------------------------------------------------
+  // 3-SECOND BANANA FALL SHOWER (Continuous rain for exactly 3 seconds)
+  // --------------------------------------------------------------------------
+  function startThreeSecondBananaRain() {
+    if (!particleContainer) return;
+    
+    particleContainer.replaceChildren();
 
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(800, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.1);
+    const RAIN_DURATION_MS = 3000; // EXACTLY 3 SECONDS
+    const spawnIntervalMs = 70; // High density shower
+    const startTime = Date.now();
 
-      gain.gain.setValueAtTime(0.4, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+    if (bananaRainInterval) clearInterval(bananaRainInterval);
 
-      osc.connect(gain);
-      gain.connect(ctx.destination);
+    bananaRainInterval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      if (elapsed >= RAIN_DURATION_MS) {
+        clearInterval(bananaRainInterval);
+        bananaRainInterval = null;
+        return;
+      }
 
-      osc.start();
-      osc.stop(ctx.currentTime + 0.1);
-    } catch (e) {}
+      const count = Math.random() > 0.5 ? 2 : 1;
+      for (let i = 0; i < count; i++) {
+        createFallingBanana();
+      }
+    }, spawnIntervalMs);
+
+    playFanfare();
+  }
+
+  function createFallingBanana() {
+    if (!particleContainer) return;
+    const banana = document.createElement('div');
+    banana.classList.add('banana-particle');
+    banana.textContent = '🍌';
+
+    const leftPos = Math.random() * 92 + 4; // 4vw to 96vw
+    const duration = Math.random() * 0.8 + 1.4; // 1.4s to 2.2s fall time
+    const size = Math.random() * 1.5 + 1.8; // 1.8rem to 3.3rem
+    const delay = Math.random() * 0.1;
+
+    banana.style.left = `${leftPos}vw`;
+    banana.style.fontSize = `${size}rem`;
+    banana.style.animationDuration = `${duration}s`;
+    banana.style.animationDelay = `${delay}s`;
+
+    particleContainer.appendChild(banana);
+
+    if (Math.random() < 0.25) {
+      playBananaSound();
+    }
+
+    setTimeout(() => {
+      banana.remove();
+    }, (duration + delay + 0.2) * 1000);
   }
 
   // --------------------------------------------------------------------------
-  // SCREEN TRANSITIONS & NAVIGATION
+  // STRICT STUDENT MATCHING: Matches ONLY when full name entry is completed!
+  // Partial prefixes (e.g. "NAREN" for "NARENKARTHIC") are NOT matched.
+  // --------------------------------------------------------------------------
+  function findStudentMatch(inputVal) {
+    if (!inputVal) return null;
+    const cleanInput = cleanStr(inputVal);
+
+    if (cleanInput.length < 3) return null;
+
+    // 1. Exact cleaned Full Name Match (e.g. "NARENKARTHIC T A", "POOVITHAN R")
+    const exactName = processedStudents.find(s => s.cleanedName === cleanInput);
+    if (exactName) return exactName;
+
+    // 2. Exact Roll Number Match (e.g. "25EC136")
+    const exactRoll = processedStudents.find(s => cleanStr(s.rollNo) === cleanInput);
+    if (exactRoll) return exactRoll;
+
+    // 3. Compact Full Name Match (ignoring spaces/punctuation, e.g. "NARENKARTHICTA")
+    const compactInput = cleanInput.replace(/\s+/g, '');
+    const compactMatch = processedStudents.find(s => s.cleanedName.replace(/\s+/g, '') === compactInput);
+    if (compactMatch) return compactMatch;
+
+    // 4. Full Token Permutation Match (all words in official name present)
+    const inputTokens = cleanInput.split(' ').filter(Boolean);
+    if (inputTokens.length >= 2) {
+      const sortedInput = [...inputTokens].sort().join(' ');
+      const permMatch = processedStudents.find(s => [...s.tokens].sort().join(' ') === sortedInput);
+      if (permMatch) return permMatch;
+    }
+
+    // 5. Complete Base Name Match (e.g. "NARENKARTHIC", "PURUSOTHAMAN", "POOVITHAN", "ROOBANGANESH")
+    // Only matches when the user has typed the entire base name, NOT a partial prefix!
+    const baseMatch = processedStudents.find(s => s.baseName === cleanInput);
+    if (baseMatch) return baseMatch;
+
+    // 6. Complete Base Name ignoring spaces (e.g. "NAREENKUMAR", "PRASANNAKUMAR")
+    const compactBaseMatch = processedStudents.find(s => s.baseName.replace(/\s+/g, '') === compactInput);
+    if (compactBaseMatch) return compactBaseMatch;
+
+    // ANOTHER STUDENTS OR INCOMPLETE NAMES: Strictly return null!
+    return null;
+  }
+
+  // --------------------------------------------------------------------------
+  // INPUT EVENT HANDLERS & VERIFIED DETAILS DISPLAY
+  // Shows Student Name, Roll No, and College Name ONLY AFTER completing full entry
+  // --------------------------------------------------------------------------
+  function checkVerifiedStatus() {
+    if (!studentNameInput) return null;
+    const rawVal = studentNameInput.value.trim();
+    if (rawVal.length >= 3) {
+      const match = findStudentMatch(rawVal);
+      if (match) {
+        if (verifiedStatusPill) {
+          if (verifiedStudentDesc) verifiedStudentDesc.textContent = 'Student Record Identified';
+          if (verifiedNameDisplay) verifiedNameDisplay.textContent = match.name;
+          if (verifiedRollNoDisplay) verifiedRollNoDisplay.textContent = match.rollNo;
+          if (verifiedCollegeDisplay) verifiedCollegeDisplay.textContent = COLLEGE_NAME;
+          verifiedStatusPill.style.display = 'block';
+        }
+        if (loginError) loginError.style.display = 'none';
+        return match;
+      }
+    }
+
+    if (verifiedStatusPill) {
+      verifiedStatusPill.style.display = 'none';
+    }
+    return null;
+  }
+
+  // Input event listeners for student name field
+  if (studentNameInput) {
+    // While typing: convert to uppercase, hide premature popup until full name is completed
+    studentNameInput.addEventListener('input', () => {
+      const start = studentNameInput.selectionStart;
+      const end = studentNameInput.selectionEnd;
+      studentNameInput.value = studentNameInput.value.toUpperCase();
+      if (start !== null && end !== null) {
+        studentNameInput.setSelectionRange(start, end);
+      }
+      if (loginError) loginError.style.display = 'none';
+      checkVerifiedStatus();
+    });
+
+    // When user finishes entering name and leaves field or presses Enter
+    studentNameInput.addEventListener('blur', () => {
+      checkVerifiedStatus();
+    });
+    studentNameInput.addEventListener('change', () => {
+      checkVerifiedStatus();
+    });
+  }
+
+  // --------------------------------------------------------------------------
+  // SCREEN SWITCHING
   // --------------------------------------------------------------------------
   function switchScreen(activeScreen) {
     [loginScreen, loadingScreen, prankScreen].forEach(screen => {
-      screen.classList.remove('active');
+      if (screen) screen.classList.remove('active');
     });
-    activeScreen.classList.add('active');
+    if (activeScreen) activeScreen.classList.add('active');
+
+    if (activeScreen === prankScreen) {
+      body.classList.add('prank-mode');
+    } else {
+      body.classList.remove('prank-mode');
+    }
   }
 
-  // Form Submission Handler
+  // --------------------------------------------------------------------------
+  // FORM SUBMISSION (TRIGGERED ON "GET RESULTS" BUTTON CLICK)
+  // --------------------------------------------------------------------------
   portalForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    
-    const nameVal = studentNameInput.value.trim();
-    if (!nameVal || nameVal.length < 2) {
-      if (loginError) {
-        loginError.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Please enter your official student name to verify results.';
-        loginError.style.display = 'block';
-      }
-      studentNameInput.focus();
+
+    const inputVal = studentNameInput ? studentNameInput.value.trim() : '';
+
+    if (!inputVal || inputVal.length < 3) {
+      showError('Please enter your full student name.');
+      if (studentNameInput) studentNameInput.focus();
       return;
     }
 
-    const res = resolveStudent(nameVal);
-    if (!res || !res.matched) {
-      if (loginError) {
-        if (res && res.ambiguous) {
-          loginError.innerHTML = `<i class="fa-solid fa-circle-info"></i> Multiple records found for <strong>${escapeHtml(res.ambiguousName)}</strong>. Please include your initial (e.g. ${res.suggestions.map(s => escapeHtml(s)).join(', ')}).`;
-        } else {
-          loginError.innerHTML = '<i class="fa-solid fa-ban"></i> <strong>Student Record Not Found:</strong> Access is strictly restricted to registered Muthayammal Engineering College students.';
-        }
-        loginError.style.display = 'block';
-      }
-      if (studentDetailsSection) {
-        studentDetailsSection.classList.remove('active');
-      }
-      rollNoInput.value = '';
-      studentNameInput.focus();
+    const match = findStudentMatch(inputVal);
+    if (!match) {
+      showError('Access Denied: Please enter your full completed name (e.g. SURESH M). Unregistered students are not allowed.');
+      if (studentNameInput) studentNameInput.focus();
       return;
     }
 
     if (loginError) loginError.style.display = 'none';
 
-    currentStudentName = res.student.name;
-    currentRollNo = res.student.rollNo;
-    studentNameInput.value = res.student.name;
-    rollNoInput.value = res.student.rollNo;
-    if (collegeNameInput) collegeNameInput.value = COLLEGE_NAME;
+    currentStudentName = match.name;
+    currentRollNo = match.rollNo;
 
-    // Ensure details section is visible before going inside
-    if (studentDetailsSection) {
-      studentDetailsSection.classList.add('active');
-    }
+    // Display the student's roll no & college name before loading
+    checkVerifiedStatus();
 
-    // Start Loading Sequence and proceed inside!
+    // Transition to realistic loading screen
     switchScreen(loadingScreen);
     startLoadingSequence();
   });
 
-  // Loading Sequence Logic
+  function showError(msg) {
+    if (!loginError) return;
+    loginError.replaceChildren();
+    const icon = document.createElement('i');
+    icon.className = 'fa-solid fa-circle-exclamation';
+    const text = document.createTextNode(` ${msg}`);
+    loginError.appendChild(icon);
+    loginError.appendChild(text);
+    loginError.style.display = 'flex';
+  }
+
+  // --------------------------------------------------------------------------
+  // REALISTIC LOADING SEQUENCE
+  // --------------------------------------------------------------------------
   function startLoadingSequence() {
     const steps = [
-      { pct: '20%', msg: 'Connecting to Central Academic Database...' },
-      { pct: '45%', msg: 'Retrieving Confidential Semester Records...' },
-      { pct: '70%', msg: 'Running Neural IQ & Mischief Analysis...' },
-      { pct: '90%', msg: 'Finalizing Student Classification...' },
-      { pct: '100%', msg: 'Match Confirmed! Redirecting...' }
+      { pct: '25%', msg: 'Connecting to Examination Server...' },
+      { pct: '50%', msg: `Fetching records for ${currentStudentName}...` },
+      { pct: '75%', msg: `Verifying Roll No: ${currentRollNo} | ${COLLEGE_NAME}` },
+      { pct: '100%', msg: 'Results Successfully Retrieved!' }
     ];
 
     let currentStep = 0;
@@ -427,281 +420,63 @@ document.addEventListener('DOMContentLoaded', () => {
         currentStep++;
       } else {
         clearInterval(interval);
-        setTimeout(showPrankDashboard, 400);
+        setTimeout(showPrankDashboard, 450);
       }
-    }, 500);
+    }, 450);
   }
 
-  // Display Prank Dashboard safely using textContent
+  // --------------------------------------------------------------------------
+  // REVEAL PRANK DASHBOARD WITH 3-SECOND BANANA FALL SHOWER
+  // --------------------------------------------------------------------------
   function showPrankDashboard() {
     switchScreen(prankScreen);
 
-    // SECURE DOM INSERTION (Prevents XSS vulnerabilities)
-    displayStudentName.textContent = currentStudentName;
-    displayRollNo.textContent = currentRollNo;
-    if (displayCollegeName) {
-      displayCollegeName.textContent = COLLEGE_NAME;
+    if (displayStudentName) displayStudentName.textContent = currentStudentName;
+    if (displayRollNo) displayRollNo.textContent = currentRollNo;
+    if (displayCollegeName) displayCollegeName.textContent = COLLEGE_NAME;
+    if (bannerStudentName) bannerStudentName.textContent = `👑 ${currentStudentName} 👑`;
+
+    // Start YouTube Background Audio Playback
+    if (bgAudioPlayer) {
+      bgAudioPlayer.src = YOUTUBE_BG_AUDIO_URL;
     }
 
-    const bannerStudentName = document.getElementById('bannerStudentName');
-    if (bannerStudentName) {
-      bannerStudentName.textContent = `👑 ${currentStudentName} 👑`;
-    }
-
-    // Set custom speech quote
-    speechBubble.textContent = `Aha! ${currentStudentName} (Roll: ${currentRollNo}) from MUTHAYAMMAL ENGINEERING COLLEGE is officially a MONKEY! 🐒`;
-
-    // Trigger visual & audio rewards
-    playFanfare();
-    triggerConfetti();
+    // TRIGGER THE 3-SECOND CONTINUOUS BANANA RAINFALL SHOWER
+    startThreeSecondBananaRain();
   }
 
-  // Reset Prank
+  // Interactive Buttons
+  if (throwBananaBtn) {
+    throwBananaBtn.addEventListener('click', () => {
+      startThreeSecondBananaRain();
+    });
+  }
+
+  // Reset Prank Button (Returns back to clean white login screen)
   if (resetPrankBtn) {
     resetPrankBtn.addEventListener('click', () => {
       portalForm.reset();
-      isDancing = false;
-      if (monkeyContainer) monkeyContainer.classList.remove('dancing');
+      currentStudentName = '';
+      currentRollNo = '';
+      if (verifiedStatusPill) verifiedStatusPill.style.display = 'none';
       if (loginError) loginError.style.display = 'none';
-      if (studentDetailsSection) studentDetailsSection.classList.remove('active');
-      rollNoInput.value = '';
-      if (collegeNameInput) collegeNameInput.value = COLLEGE_NAME;
+      if (particleContainer) particleContainer.replaceChildren();
+
+      // Stop YouTube Background Audio on Reset
+      if (bgAudioPlayer) {
+        bgAudioPlayer.src = '';
+      }
+
       switchScreen(loginScreen);
+      if (studentNameInput) studentNameInput.focus();
     });
   }
 
-  // --------------------------------------------------------------------------
-  // INTERACTIVE MONKEY FEATURES
-  // --------------------------------------------------------------------------
-  
-  // Pupil Eye Tracking (Follows Cursor)
-  document.addEventListener('mousemove', (e) => {
-    if (!prankScreen.classList.contains('active')) return;
-    if (!monkeyContainer || !pupilLeft || !pupilRight) return;
-
-    const rect = monkeyContainer.getBoundingClientRect();
-    const monkeyCenterX = rect.left + rect.width / 2;
-    const monkeyCenterY = rect.top + rect.height / 2;
-
-    const angle = Math.atan2(e.clientY - monkeyCenterY, e.clientX - monkeyCenterX);
-    const distance = Math.min(3, Math.hypot(e.clientX - monkeyCenterX, e.clientY - monkeyCenterY) / 50);
-
-    const pupilX = Math.cos(angle) * distance;
-    const pupilY = Math.sin(angle) * distance;
-
-    pupilLeft.setAttribute('cx', (84 + pupilX).toFixed(2));
-    pupilLeft.setAttribute('cy', (70 + pupilY).toFixed(2));
-    pupilRight.setAttribute('cx', (116 + pupilX).toFixed(2));
-    pupilRight.setAttribute('cy', (70 + pupilY).toFixed(2));
-  });
-
-  // Click Monkey -> Reaction & Random Quote
-  if (monkeyContainer) {
-    monkeyContainer.addEventListener('click', () => {
-      playSqueakSound();
-      
-      // Animate mouth curve
-      if (monkeyMouth) {
-        monkeyMouth.setAttribute('d', 'M84 90 Q 100 115 116 90');
-        setTimeout(() => {
-          monkeyMouth.setAttribute('d', 'M88 92 Q 100 104 112 92');
-        }, 600);
-      }
-
-      // Random quote
-      const randomQuote = monkeyQuotes[Math.floor(Math.random() * monkeyQuotes.length)];
-      if (speechBubble) speechBubble.textContent = randomQuote;
-
-      // Quick bounce
-      monkeyContainer.style.transform = 'scale(1.2) rotate(8deg)';
-      setTimeout(() => {
-        monkeyContainer.style.transform = 'scale(1) rotate(0deg)';
-      }, 200);
-    });
-  }
-
-  // Action Button: Throw Banana
-  if (throwBananaBtn) {
-    throwBananaBtn.addEventListener('click', () => {
-      playPopSound();
-      spawnBananas(12);
-    });
-  }
-
-  function spawnBananas(count) {
-    if (!particleContainer) return;
-    for (let i = 0; i < count; i++) {
-      const banana = document.createElement('div');
-      banana.classList.add('banana-particle');
-      banana.textContent = '🍌';
-      banana.style.left = `${Math.random() * 90 + 5}vw`;
-      banana.style.animationDuration = `${Math.random() * 1.5 + 1.5}s`;
-      banana.style.fontSize = `${Math.random() * 1.5 + 1.5}rem`;
-
-      particleContainer.appendChild(banana);
-
-      setTimeout(() => {
-        banana.remove();
-      }, 3000);
-    }
-  }
-
-  // Action Button: Party Pose (Rock On 🤘)
-  if (danceBtn) {
-    danceBtn.addEventListener('click', () => {
-      isDancing = !isDancing;
-      if (isDancing) {
-        if (monkeyContainer) monkeyContainer.classList.add('dancing');
-        showPose(poseRockOn);
-        if (speechBubble) speechBubble.textContent = '🤘 ROCK ON MONKEY TIME! 🎸';
-        danceBtn.innerHTML = '<span>⏸ Stop Pose</span>';
-        playFanfare();
-        spawnBananas(20);
-      } else {
-        if (monkeyContainer) monkeyContainer.classList.remove('dancing');
-        showPose(poseDefault);
-        if (speechBubble) speechBubble.textContent = 'Phew! Party over!';
-        danceBtn.innerHTML = '<span>💃 Party Pose 🤘</span>';
-      }
-    });
-  }
-
-  // Action Button: Thumbs Down Prank Pose 👎
-  if (tauntBtn) {
-    tauntBtn.addEventListener('click', () => {
-      isTaunting = !isTaunting;
-      if (isTaunting) {
-        if (monkeyTongue) monkeyTongue.style.display = 'block';
-        showPose(poseThumbsDown);
-        if (monkeyMouth) monkeyMouth.setAttribute('d', 'M84 90 Q 100 120 116 90');
-        if (speechBubble) speechBubble.textContent = '👎 FAIL! Zero marks for you! 🤪';
-        if (monkeyContainer) monkeyContainer.style.transform = 'scale(1.15) rotate(-10deg)';
-        playSqueakSound();
-      } else {
-        if (monkeyTongue) monkeyTongue.style.display = 'none';
-        showPose(poseDefault);
-        if (monkeyMouth) monkeyMouth.setAttribute('d', 'M88 92 Q 100 104 112 92');
-        if (speechBubble) speechBubble.textContent = 'OOH OOH AAH AAH! 🍌';
-        if (monkeyContainer) monkeyContainer.style.transform = 'scale(1) rotate(0deg)';
-      }
-    });
-  }
-
-  // Action Button: Peace Sign ✌️
-  if (squeakBtn) {
-    squeakBtn.addEventListener('click', () => {
-      showPose(posePeace);
-      if (speechBubble) speechBubble.textContent = '✌️ Peace out, student! ✌️';
-      playSqueakSound();
-      setTimeout(() => {
-        if (!isDancing && !isTaunting) showPose(poseDefault);
-      }, 2000);
-    });
-  }
-
-  // Confetti Animation Generator
-  function triggerConfetti() {
-    if (!particleContainer) return;
-    const colors = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#06b6d4'];
-    for (let i = 0; i < 40; i++) {
-      const confetti = document.createElement('div');
-      confetti.classList.add('banana-particle');
-      confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-      confetti.style.width = `${Math.random() * 10 + 6}px`;
-      confetti.style.height = `${Math.random() * 10 + 6}px`;
-      confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-      confetti.style.left = `${Math.random() * 100}vw`;
-      confetti.style.animationDuration = `${Math.random() * 2 + 1.5}s`;
-
-      particleContainer.appendChild(confetti);
-
-      setTimeout(() => {
-        confetti.remove();
-      }, 3000);
-    }
-  }
-
-  // --------------------------------------------------------------------------
-  // PRANK CERTIFICATE CANVAS GENERATOR
-  // --------------------------------------------------------------------------
-  if (downloadCertBtn) {
-    downloadCertBtn.addEventListener('click', () => {
-      generateCertificate();
-    });
-  }
-
-  function generateCertificate() {
-    const ctx = certCanvas.getContext('2d');
-    const w = certCanvas.width;
-    const h = certCanvas.height;
-
-    // Background Gradient
-    const bgGrad = ctx.createLinearGradient(0, 0, w, h);
-    bgGrad.addColorStop(0, '#0f172a');
-    bgGrad.addColorStop(1, '#1e1b4b');
-    ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, w, h);
-
-    // Border
-    ctx.strokeStyle = '#f59e0b';
-    ctx.lineWidth = 12;
-    ctx.strokeRect(20, 20, w - 40, h - 40);
-
-    ctx.strokeStyle = '#ec4899';
-    ctx.lineWidth = 4;
-    ctx.strokeRect(32, 32, w - 64, h - 64);
-
-    // Header Title
-    ctx.fillStyle = '#f59e0b';
-    ctx.font = 'bold 32px "Outfit", sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('OFFICIAL CERTIFICATE OF MISCHIEF', w / 2, 75);
-
-    ctx.fillStyle = '#38bdf8';
-    ctx.font = 'bold 18px "Outfit", sans-serif';
-    ctx.fillText('MUTHAYAMMAL ENGINEERING COLLEGE', w / 2, 110);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '16px "Outfit", sans-serif';
-    ctx.fillText('THIS CERTIFIES THAT ACADEMIC EVALUATION HAS COMPLETED FOR:', w / 2, 145);
-
-    // Student Name
-    ctx.fillStyle = '#ec4899';
-    ctx.font = 'bold 42px "Outfit", sans-serif';
-    ctx.fillText(currentStudentName.toUpperCase(), w / 2, 205);
-
-    // Roll Number
-    ctx.fillStyle = '#cbd5e1';
-    ctx.font = '22px "Space Grotesk", monospace';
-    ctx.fillText(`Roll Number / ID: ${currentRollNo}`, w / 2, 250);
-
-    // Main Prank Award Box
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
-    ctx.fillRect(100, 290, w - 200, 140);
-    ctx.strokeStyle = '#6366f1';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(100, 290, w - 200, 140);
-
-    ctx.fillStyle = '#10b981';
-    ctx.font = 'bold 28px "Outfit", sans-serif';
-    ctx.fillText('OFFICIAL RATING: 100% CERTIFIED MONKEY 🐒', w / 2, 345);
-
-    ctx.fillStyle = '#f8fafc';
-    ctx.font = 'italic 18px "Outfit", sans-serif';
-    ctx.fillText('"Awarded for supreme banana eating, class goofing & maximum fun!"', w / 2, 390);
-
-    // Footer Info & Seal
-    const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '16px "Outfit", sans-serif';
-    ctx.fillText(`Issued Date: ${today}`, 200, 520);
-    ctx.fillText('Signature: Master Monkey ✍️', w - 220, 520);
-
-    // Trigger Download
-    const dataUrl = certCanvas.toDataURL('image/png');
-    const link = document.createElement('a');
-    link.download = `${currentStudentName.replace(/\s+/g, '_')}_Monkey_Certificate.png`;
-    link.href = dataUrl;
-    link.click();
+  // Check URL query parameters (e.g. ?name=NARENKARTHIC or ?student=NAVEEN)
+  const urlParams = new URLSearchParams(window.location.search);
+  const queryParam = urlParams.get('name') || urlParams.get('student') || urlParams.get('roll') || '';
+  if (queryParam.trim() && studentNameInput) {
+    studentNameInput.value = queryParam.trim().toUpperCase();
+    checkVerifiedStatus();
   }
 });
