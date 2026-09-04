@@ -44,6 +44,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let isAudioPlaying = false;
   let ytAudioPlayer = null;
+  let muteBtnTimer = null;
+
+  // Function to completely hide the mute button
+  function hideMuteButton() {
+    if (muteBtnTimer) {
+      clearTimeout(muteBtnTimer);
+      muteBtnTimer = null;
+    }
+    if (audioControlBtn) {
+      audioControlBtn.classList.remove('visible');
+      audioControlBtn.style.display = 'none';
+    }
+  }
+
+  // Function to show the floating mute button inside the prank box after login
+  function showBoxMuteButton() {
+    if (muteBtnTimer) {
+      clearTimeout(muteBtnTimer);
+      muteBtnTimer = null;
+    }
+    if (audioControlBtn) {
+      audioControlBtn.style.display = 'inline-flex';
+      requestAnimationFrame(() => {
+        if (body.classList.contains('prank-mode') && audioControlBtn) {
+          audioControlBtn.classList.add('visible');
+        }
+      });
+    }
+  }
+
+  // Ensure mute button is hidden on login screen on load
+  hideMuteButton();
 
   // Portal Configuration
   const PORTAL_CONFIG = {
@@ -64,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { name: 'NAVEEN J', rollNo: '25EC139', branch: 'B.E. - Electronics & Communication Engineering' },
     { name: 'NAVEEN R', rollNo: '25EC140', branch: 'B.E. - Electronics & Communication Engineering' },
     { name: 'NAVEENKUMAR S', rollNo: '25EC141', branch: 'B.E. - Electronics & Communication Engineering' },
-    { name: 'NAVEENKUMAR S', rollNo: '25EC142', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'NAVEEN KUMAR S', rollNo: '25EC142', branch: 'B.E. - Electronics & Communication Engineering' },
     { name: 'NISHANTH M', rollNo: '25EC146', branch: 'B.E. - Electronics & Communication Engineering' },
     { name: 'NITHIN AHAMMED M', rollNo: '25EC147', branch: 'B.E. - Electronics & Communication Engineering' },
     { name: 'NITHISH P', rollNo: '25EC148', branch: 'B.E. - Electronics & Communication Engineering' },
@@ -197,7 +229,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (cleanInput.length < 3) return null;
 
-    // 1. Exact cleaned Full Name Match (e.g. "NARENKARTHIC T A", "POOVITHAN R")
+    // Check if input directly matches or contains an authorized roll number (e.g. "25EC142" or "NAVEEN KUMAR S - 25EC142")
+    for (const student of processedStudents) {
+      const cleanRoll = cleanStr(student.rollNo);
+      if (cleanInput === cleanRoll || cleanInput.includes(cleanRoll)) {
+        return student;
+      }
+    }
+
+    // 1. Exact cleaned Full Name Match (e.g. "NARENKARTHIC T A", "NAVEEN KUMAR S", "POOVITHAN R")
     const exactName = processedStudents.find(s => s.cleanedName === cleanInput);
     if (exactName) return exactName;
 
@@ -205,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const exactRoll = processedStudents.find(s => cleanStr(s.rollNo) === cleanInput);
     if (exactRoll) return exactRoll;
 
-    // 3. Compact Full Name Match (ignoring spaces/punctuation, e.g. "NARENKARTHICTA")
+    // 3. Compact Full Name Match (ignoring spaces/punctuation, e.g. "NAVEENKUMARS", "NARENKARTHICTA")
     const compactInput = cleanInput.replace(/\s+/g, '');
     const compactMatch = processedStudents.find(s => s.cleanedName.replace(/\s+/g, '') === compactInput);
     if (compactMatch) return compactMatch;
@@ -218,12 +258,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (permMatch) return permMatch;
     }
 
-    // 5. Complete Base Name Match (e.g. "NARENKARTHIC", "PURUSOTHAMAN", "POOVITHAN", "ROOBANGANESH")
+    // 5. Complete Base Name Match (e.g. "NAVEEN KUMAR", "NARENKARTHIC", "PURUSOTHAMAN", "POOVITHAN", "ROOBANGANESH")
     // Only matches when the user has typed the entire base name, NOT a partial prefix!
     const baseMatch = processedStudents.find(s => s.baseName === cleanInput);
     if (baseMatch) return baseMatch;
 
-    // 6. Complete Base Name ignoring spaces (e.g. "NAREENKUMAR", "PRASANNAKUMAR")
+    // 6. Complete Base Name ignoring spaces (e.g. "NAVEENKUMAR", "PRASANNAKUMAR")
     const compactBaseMatch = processedStudents.find(s => s.baseName.replace(/\s+/g, '') === compactInput);
     if (compactBaseMatch) return compactBaseMatch;
 
@@ -295,6 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
       body.classList.add('prank-mode');
     } else {
       body.classList.remove('prank-mode');
+      hideMuteButton();
     }
   }
 
@@ -502,8 +543,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  let isMutedByUser = false;
+
   function toggleAudioPlayback() {
     if (isAudioPlaying) {
+      isMutedByUser = true;
       if (bgDirectAudio) {
         try { bgDirectAudio.pause(); } catch (e) {}
       }
@@ -524,6 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
       isAudioPlaying = false;
       updateAudioUI(false);
     } else {
+      isMutedByUser = false;
       playYouTubeBackgroundAudio();
     }
   }
@@ -540,10 +585,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (bannerStudentName) bannerStudentName.textContent = `👑 ${currentStudentName} 👑`;
 
     // Start YouTube Background Audio
-    playYouTubeBackgroundAudio();
+    if (!isMutedByUser) {
+      playYouTubeBackgroundAudio();
+    } else {
+      updateAudioUI(false);
+    }
 
     // TRIGGER THE 3-SECOND CONTINUOUS BANANA RAINFALL SHOWER
     startThreeSecondBananaRain();
+
+    // Hide mute button initially upon login, then show 3 seconds later
+    hideMuteButton();
+    muteBtnTimer = setTimeout(() => {
+      if (body.classList.contains('prank-mode')) {
+        showBoxMuteButton();
+      }
+    }, 3000);
   }
 
   // Audio Control Button Click Listener
@@ -557,7 +614,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Unblock browser autoplay policy if user interacts anywhere on prank screen
   if (prankScreen) {
     prankScreen.addEventListener('click', () => {
-      if (!isAudioPlaying && body.classList.contains('prank-mode')) {
+      if (!isMutedByUser && !isAudioPlaying && body.classList.contains('prank-mode')) {
         playYouTubeBackgroundAudio();
       }
     });
@@ -582,6 +639,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Stop Background Audio on Reset
       stopBackgroundAudio();
+      hideMuteButton();
 
       switchScreen(loginScreen);
       if (studentNameInput) studentNameInput.focus();

@@ -763,7 +763,7 @@ body.prank-mode .loading-progress-bar {
    ========================================================================== */
 @media (max-width: 768px) {
   body {
-    padding: 24px 14px;
+    padding: 70px 14px 24px 14px;
   }
 
   .mec-header {
@@ -828,87 +828,116 @@ body.prank-mode .loading-progress-bar {
 }
 
 /* ==========================================================================
-   TOP CORNER FLOATING MUTE / UNMUTE BUTTON
+   FLOATING MUTE BUTTON INSIDE THE PRANK BOX
+   (Visible after login inside #prankScreen, floating at medium speed)
    ========================================================================== */
-.top-corner-mute-btn {
-  position: fixed;
-  top: 20px;
+body:not(.prank-mode) .box-floating-mute-btn,
+body:not(.prank-mode) #audioControlBtn {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.box-floating-mute-btn {
+  position: absolute;
+  top: 18px;
   right: 20px;
-  z-index: 10000;
-  display: inline-flex;
+  z-index: 100;
+  display: none;
+  opacity: 0;
+  pointer-events: none;
   align-items: center;
   gap: 8px;
-  padding: 10px 18px;
-  background: rgba(15, 23, 42, 0.88);
-  border: 1.5px solid rgba(245, 158, 11, 0.55);
+  padding: 9px 16px;
+  background: rgba(15, 23, 42, 0.92);
+  border: 1.5px solid rgba(245, 158, 11, 0.7);
   border-radius: 50px;
   color: #fbbf24;
   font-family: var(--font-heading);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 700;
   letter-spacing: 0.3px;
   cursor: pointer;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 14px rgba(245, 158, 11, 0.25);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55), 0 0 16px rgba(245, 158, 11, 0.3);
   user-select: none;
+  transition: opacity 0.45s ease-out, background 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
 }
 
-.top-corner-mute-btn:hover {
-  background: rgba(245, 158, 11, 0.25);
+/* Shown inside the box 3 seconds after login with medium-speed up and down movement */
+body.prank-mode .box-floating-mute-btn.visible {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  animation: muteUpDownMedium 2.2s ease-in-out infinite alternate;
+}
+
+/* Medium-Speed Up and Down Floating Animation */
+@keyframes muteUpDownMedium {
+  0% {
+    transform: translateY(-8px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5), 0 0 14px rgba(245, 158, 11, 0.3);
+  }
+  100% {
+    transform: translateY(16px);
+    box-shadow: 0 18px 30px rgba(0, 0, 0, 0.65), 0 0 24px rgba(245, 158, 11, 0.55);
+  }
+}
+
+/* Hover effect: Pause up-and-down movement smoothly so user can easily click */
+.box-floating-mute-btn:hover {
+  animation-play-state: paused;
+  background: rgba(245, 158, 11, 0.28);
   border-color: #fbbf24;
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 6px 24px rgba(245, 158, 11, 0.5);
+  transform: translateY(-2px) scale(1.06);
+  box-shadow: 0 12px 32px rgba(245, 158, 11, 0.65);
 }
 
-.top-corner-mute-btn:active {
-  transform: translateY(0) scale(0.98);
+.box-floating-mute-btn:active {
+  transform: translateY(0px) scale(0.98);
 }
 
-.top-corner-mute-btn i {
-  font-size: 1.1rem;
+.box-floating-mute-btn i {
+  font-size: 1.05rem;
   color: #fbbf24;
   transition: transform 0.2s ease;
 }
 
-.top-corner-mute-btn.playing i {
+.box-floating-mute-btn.playing i {
   animation: audio-pulse 1.3s infinite ease-in-out;
 }
 
-.top-corner-mute-btn.muted {
-  background: rgba(15, 23, 42, 0.85);
-  border-color: rgba(239, 68, 68, 0.6);
+.box-floating-mute-btn.muted {
+  background: rgba(15, 23, 42, 0.9);
+  border-color: rgba(239, 68, 68, 0.75);
   color: #f87171;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 18px rgba(239, 68, 68, 0.35);
 }
 
-.top-corner-mute-btn.muted i {
+.box-floating-mute-btn.muted i {
   color: #f87171;
   animation: none;
 }
 
-.top-corner-mute-btn.muted:hover {
-  background: rgba(239, 68, 68, 0.2);
+.box-floating-mute-btn.muted:hover {
+  background: rgba(239, 68, 68, 0.25);
   border-color: #ef4444;
-}
-
-@keyframes audio-pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.22);
-    opacity: 0.8;
-  }
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
 }
 
 @media (max-width: 600px) {
-  .top-corner-mute-btn {
-    top: 14px;
-    right: 14px;
-    padding: 8px 14px;
-    font-size: 0.82rem;
+  .box-floating-mute-btn {
+    top: 12px;
+    right: 12px;
+    padding: 7px 13px;
+    font-size: 0.8rem;
+    gap: 6px;
+  }
+  
+  .prank-header {
+    padding-top: 18px;
   }
 }
