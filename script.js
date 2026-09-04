@@ -432,12 +432,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!audioControlBtn) return;
     if (playing) {
       audioControlBtn.classList.add('playing');
+      audioControlBtn.classList.remove('muted');
       if (audioIcon) audioIcon.className = 'fa-solid fa-volume-high';
-      if (audioStatusText) audioStatusText.textContent = '🔊 Background Audio: Playing (Bruh Sound)';
+      if (audioStatusText) audioStatusText.textContent = 'Mute Audio';
     } else {
       audioControlBtn.classList.remove('playing');
+      audioControlBtn.classList.add('muted');
       if (audioIcon) audioIcon.className = 'fa-solid fa-volume-xmark';
-      if (audioStatusText) audioStatusText.textContent = '🔇 Audio Paused (Click to Play)';
+      if (audioStatusText) audioStatusText.textContent = 'Unmute Audio';
     }
   }
 

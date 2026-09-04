@@ -129,6 +129,12 @@
          ========================================================================== -->
     <section id="prankScreen" class="view-screen">
 
+      <!-- Top Corner Floating Mute Button -->
+      <button id="audioControlBtn" class="top-corner-mute-btn playing" type="button" aria-label="Mute or unmute audio">
+        <i class="fa-solid fa-volume-high" id="audioIcon"></i>
+        <span id="audioStatusText">Mute Audio</span>
+      </button>
+
       <!-- Prank Header -->
       <div class="prank-header">
         <h1 class="prank-tag">🐒 F***K ME 🐒</h1>
@@ -144,22 +150,6 @@
         <div class="student-banner">
           <span id="bannerStudentName">STUDENT NAME</span>
         </div>
-      </div>
-
-      <!-- Interactive Prank Audio Badge / Controller -->
-      <div class="prank-audio-bar">
-        <button id="audioControlBtn" class="audio-control-pill" type="button" aria-label="Audio status and control">
-          <i class="fa-solid fa-volume-high" id="audioIcon"></i>
-          <span id="audioStatusText">🔊 Background Audio: Playing (Bruh Sound)</span>
-        </button>
-      </div>
-
-      <!-- Reset Action Button -->
-      <div class="actions-grid">
-        <button id="resetPrankBtn" class="action-btn outline" type="button">
-          <i class="fa-solid fa-arrow-rotate-left"></i>
-          <span>🔄 Prank Another Student</span>
-        </button>
       </div>
 
     </section>
