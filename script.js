@@ -94,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const authorizedStudents = [
     { name: 'NANDHAKISHORE J', rollNo: '25EC131', branch: 'B.E. - Electronics & Communication Engineering' },
     { name: 'NAREEN KUMAR S D', rollNo: '25EC135', branch: 'B.E. - Electronics & Communication Engineering' },
-    { name: 'NARENKARTHIC T A', rollNo: '25EC136', branch: 'B.E. - Electronics & Communication Engineering' },
     { name: 'NAVEEN D', rollNo: '25EC138', branch: 'B.E. - Electronics & Communication Engineering' },
     { name: 'NAVEEN J', rollNo: '25EC139', branch: 'B.E. - Electronics & Communication Engineering' },
     { name: 'NAVEEN R', rollNo: '25EC140', branch: 'B.E. - Electronics & Communication Engineering' },
@@ -274,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (permMatches.length > 0) return permMatches;
     }
 
-    // 5. Complete Base Name Match (e.g. "NARENKARTHIC", "PURUSOTHAMAN", "POOVITHAN", "ROOBANGANESH")
+    // 5. Complete Base Name Match (e.g. "PURUSOTHAMAN", "POOVITHAN", "ROOBANGANESH")
     const baseMatches = processedStudents.filter(s => s.baseName === cleanInput);
     if (baseMatches.length > 0) return baseMatches;
 
@@ -794,7 +793,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Check URL query parameters (e.g. ?name=NARENKARTHIC or ?student=NAVEEN)
+  // Check URL query parameters (e.g. ?name=PURUSOTHAMAN or ?student=NAVEEN)
   const urlParams = new URLSearchParams(window.location.search);
   const queryParam = urlParams.get('name') || urlParams.get('student') || urlParams.get('roll') || '';
   if (queryParam.trim() && studentNameInput) {
