@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { name: 'NAVEEN J', rollNo: '25EC139', branch: 'B.E. - Electronics & Communication Engineering' },
     { name: 'NAVEEN R', rollNo: '25EC140', branch: 'B.E. - Electronics & Communication Engineering' },
     { name: 'NAVEENKUMAR S', rollNo: '25EC141', branch: 'B.E. - Electronics & Communication Engineering' },
-    { name: 'NAVEEN KUMAR S', rollNo: '25EC142', branch: 'B.E. - Electronics & Communication Engineering' },
+    { name: 'NAVEENKUMAR S', rollNo: '25EC142', branch: 'B.E. - Electronics & Communication Engineering' },
     { name: 'NISHANTH M', rollNo: '25EC146', branch: 'B.E. - Electronics & Communication Engineering' },
     { name: 'NITHIN AHAMMED M', rollNo: '25EC147', branch: 'B.E. - Electronics & Communication Engineering' },
     { name: 'NITHISH P', rollNo: '25EC148', branch: 'B.E. - Electronics & Communication Engineering' },
